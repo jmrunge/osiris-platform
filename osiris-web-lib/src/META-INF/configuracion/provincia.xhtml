@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:pe="http://primefaces.org/ui/extensions"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+    
+    <ui:composition>
+        <h:panelGrid columns="3" >
+            <h:outputLabel value="Nombre" />
+            <p:inputText value="#{provinciaBean.object.nombre}" />
+            <h:outputLabel value="" />
+            <h:outputLabel value="Predeterminada" />
+            <p:selectBooleanCheckbox value="#{provinciaBean.predeterminada}" />
+            <h:outputLabel value="" />
+            <h:outputLabel value="País" />
+            <p:inputText value="#{provinciaBean.object.pais}" disabled="true" id="pais" />
+            <p:outputPanel >
+                <p:commandButton ajax="true" 
+                                 onclick="busqPaisDiag.show()" 
+                                 icon="ui-icon-buscar" 
+                                 id="buscarPais" /> 
+                <pe:tooltip for="buscarPais" value="Buscar" position="top left" />
+            </p:outputPanel>
+        </h:panelGrid>
+        <p:panel header="Localidades" closable="false" style="width:420px;" visible="#{(provinciaBean.localidadCollection != null) and (!provinciaBean.localidadCollection.isEmpty())}" >
+            <p:scrollPanel style="overflow: auto;width:400px;height:200px;border:none;" >
+                <p:dataList value="#{provinciaBean.localidadCollection}" var="localidad"  >
+                    <p:column >
+                        #{localidad}
+                    </p:column>
+                </p:dataList>
+            </p:scrollPanel>
+        </p:panel>
+    </ui:composition>
+</html>

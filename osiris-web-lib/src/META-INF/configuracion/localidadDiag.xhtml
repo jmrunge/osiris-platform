@@ -1,0 +1,69 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+    <ui:composition>
+        <p:dialog header="Buscar Localidad" 
+                closable="false" 
+                resizable="false" 
+                modal="false" 
+                widgetVar="busqLocalidadDiag" 
+                onShow="setLocalidadHolder()" 
+                onHide="cleanLocalidadHolder()" >
+            <h:panelGrid columns="1">
+                <ezcomp:busqueda canDelete="false"
+                                cleanObject="#{localidadesBean.cleanObject}"
+                                onSelectUpdate="#{onSelectUpdate}"
+                                objectSelectListener="#{localidadesBean.selectObject}"
+                                objects="#{localidadesBean.objects}"
+                                searchKey="#{localidadesBean.searchKey}"
+                                searchLabel="Nombre"
+                                searchObject="#{localidadesBean.search}"
+                                selectedNode="#{localidadesBean.selectedNode}"
+                                nodeExpandListener="#{localidadesBean.expandNode}" 
+                                canCreate="#{localidadesBean.canCreate()}" 
+                                onCreateUpdate="#{componentFinder.getComponentId('localidadForm')}" 
+                                createDiagCmd="crearLocalidadDiag.show()" 
+                                showCreateDiag="true" />
+                <f:facet name="footer">
+                    <h:form >
+                        <p:commandButton value="Cerrar" 
+                                        onclick="busqLocalidadDiag.hide()" />
+                    </h:form>
+                </f:facet>
+            </h:panelGrid>
+        </p:dialog>
+        <p:dialog header="Crear Localidad" 
+                closable="false" 
+                resizable="false" 
+                modal="false" 
+                widgetVar="crearLocalidadDiag" 
+                onShow="crearLocalidadCmd()" 
+                onHide="cleanLocalidadHolder()" >
+            <h:form prependId="false" 
+                    id="localidadForm" >
+                <ui:include src="localidad.xhtml" />
+                <h:panelGrid columns="1">
+                    <f:facet name="footer">
+                        <p:commandButton ajax="true" 
+                                        oncomplete="crearLocalidadDiag.hide();busqLocalidadDiag.hide()"
+                                        value="Crear" 
+                                        actionListener="#{localidadBean.updateObject}" 
+                                        update=":growl, #{componentFinder.getComponentId('localidadForm')}, #{onSelectUpdate}" 
+                                        process="@form" />
+                        <h:outputLabel value="  " />
+                        <p:commandButton ajax="true" 
+                                        onclick="crearLocalidadDiag.hide()"
+                                        value="Cancelar" />
+                    </f:facet>
+                </h:panelGrid>
+            </h:form>
+        </p:dialog>
+    </ui:composition>
+</html>
+

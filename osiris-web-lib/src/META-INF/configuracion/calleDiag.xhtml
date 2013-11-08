@@ -1,0 +1,69 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+    <ui:composition>
+        <p:dialog header="Buscar Calle" 
+                closable="false" 
+                resizable="false" 
+                modal="false" 
+                widgetVar="busqCalleDiag" 
+                onShow="setCalleHolder()" 
+                onHide="cleanCalleHolder()" >
+            <h:panelGrid columns="1">
+                <ezcomp:busqueda canDelete="false"
+                                cleanObject="#{callesBean.cleanObject}"
+                                onSelectUpdate="#{onSelectUpdate}"
+                                objectSelectListener="#{callesBean.selectObject}"
+                                objects="#{callesBean.objects}"
+                                searchKey="#{callesBean.searchKey}"
+                                searchLabel="Nombre"
+                                searchObject="#{callesBean.search}"
+                                selectedNode="#{callesBean.selectedNode}"
+                                nodeExpandListener="#{callesBean.expandNode}" 
+                                canCreate="#{callesBean.canCreate()}" 
+                                onCreateUpdate="#{componentFinder.getComponentId('calleForm')}" 
+                                createDiagCmd="crearCalleDiag.show()" 
+                                showCreateDiag="true" />
+                <f:facet name="footer">
+                    <h:form >
+                        <p:commandButton value="Cerrar" 
+                                        onclick="busqCalleDiag.hide()" />
+                    </h:form>
+                </f:facet>
+            </h:panelGrid>
+        </p:dialog>
+        <p:dialog header="Crear Calle" 
+                closable="false" 
+                resizable="false" 
+                modal="false" 
+                widgetVar="crearCalleDiag" 
+                onShow="crearCalleCmd()" 
+                onHide="cleanCalleHolder()" >
+            <h:form prependId="false" 
+                    id="calleForm" >
+                <ui:include src="calle.xhtml" />
+                <h:panelGrid columns="1">
+                    <f:facet name="footer">
+                        <p:commandButton ajax="true" 
+                                        oncomplete="crearCalleDiag.hide();busqCalleDiag.hide()"
+                                        value="Crear" 
+                                        actionListener="#{calleBean.updateObject}" 
+                                        update=":growl, #{componentFinder.getComponentId('calleForm')}, #{onSelectUpdate}" 
+                                        process="@form" />
+                        <h:outputLabel value="  " />
+                        <p:commandButton ajax="true" 
+                                        onclick="crearCalleDiag.hide()"
+                                        value="Cancelar" />
+                    </f:facet>
+                </h:panelGrid>
+            </h:form>
+        </p:dialog>
+    </ui:composition>
+</html>
+

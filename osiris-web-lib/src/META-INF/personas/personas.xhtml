@@ -1,0 +1,823 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:pe="http://primefaces.org/ui/extensions"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+    <body>
+
+        <ui:composition template="./../templates/baseTemplate.xhtml">
+
+            <ui:define name="left">
+                <p:panel header="Personas" 
+                         id="busqPersonas" >
+                    <ezcomp:busqueda onSelectUpdate=":personaData"
+                                     objectSelectListener="#{personaBean.selectObject}"
+                                     canDelete="true"
+                                     cleanObject="#{personaBean.cleanObject}"
+                                     objects="#{personasBean.objects}"
+                                     searchKey="#{personasBean.searchKey}"
+                                     searchLabel="Nombre, Razón Social, DNI, CUIT, Usuario"
+                                     searchObject="#{personasBean.search}"
+                                     selectedNode="#{personasBean.selectedNode}"
+                                     nodeExpandListener="#{personasBean.expandNode}" 
+                                     canCreate="#{personasBean.canCreate()}" 
+                                     onCreateUpdate=":nuevaPersonaForm" 
+                                     showCreateDiag="true" 
+                                     createDiagCmd="nuevaPersonaDiag.show()" />
+                </p:panel>
+                <p:dialog closable="false" 
+                          dynamic="true" 
+                          widgetVar="nuevaPersonaDiag" 
+                          resizable="false" 
+                          header="Nueva Persona"
+                          onShow="cleanTipoPersona()" >
+                    <h:form id="nuevaPersonaForm" >
+                        <h:panelGrid columns="2" >
+                            <h:outputLabel value="Tipo de Persona: " />
+                            <p:selectOneMenu value="#{personaBean.tipoPersona}" >
+                                <f:selectItem itemLabel="Seleccione...." itemValue="" />
+                                <f:selectItems value="#{personaBean.tipoPersonas}" />
+                            </p:selectOneMenu>
+                            <f:facet name="footer">
+                                <h:panelGrid columns="2" >
+                                    <p:commandButton value="Aceptar" 
+                                                    actionListener="#{personaBean.newObject}" 
+                                                    update=":personaData" 
+                                                    oncomplete="nuevaPersonaDiag.hide()" 
+                                                    process="@form" />
+                                    <p:commandButton value="Cancelar" 
+                                                    onclick="cleanTipoPersona();nuevaPersonaDiag.hide()" 
+                                                    process="@form" />
+                                </h:panelGrid>
+                            </f:facet>
+                        </h:panelGrid>
+                    </h:form>
+                </p:dialog>
+                <h:form prependId="false" >
+                    <p:remoteCommand action="#{personaBean.cleanTipoPersona()}" 
+                                    name="cleanTipoPersona" 
+                                    process="@form" />
+                </h:form>
+            </ui:define>
+
+            <ui:define name="center">
+                <p:panel header="Personas" 
+                         id="personaData" 
+                         visible="#{personaBean.object != null and personasBean.canRead()}" >
+                    <h:form prependId="false" 
+                            id="personaForm" 
+                            binding="${componentFinder.mainForm}" >
+                        <p:accordionPanel activeIndex="0">
+                            <p:tab title="Datos Generales" >
+                                <h:panelGrid columns="4" >
+                                    <h:outputLabel value="Nombre" />
+                                    <p:inputText value="#{personaBean.object.nombre}" />
+                                    <h:outputLabel value="Condición de IVA" />
+                                    <p:selectOneMenu value="#{personaBean.condicionIVA}" 
+                                                     disabled="#{personaBean.isPersonaFisica()}" >
+                                        <f:selectItem itemLabel="Seleccione...." itemValue="" />
+                                        <f:selectItems value="#{personaBean.condicionesIVA}" />
+                                    </p:selectOneMenu>
+                                    <h:outputLabel value="DNI"  
+                                                   rendered="#{personaBean.isPersonaFisica()}" />
+                                    <pe:inputNumber decimalPlaces="0" 
+                                                    decimalSeparator=","
+                                                    maxValue="99999999" 
+                                                    minValue="0" 
+                                                    thousandSeparator="." 
+                                                    value="#{personaBean.object.dni}" 
+                                                    rendered="#{personaBean.isPersonaFisica()}" />
+                                    <h:outputLabel value="Fecha de Nacimiento"  
+                                                   rendered="#{personaBean.isPersonaFisica()}" />
+                                    <p:calendar disabledWeekends="true" 
+                                                maxdate="#{personaBean.maxDate}" 
+                                                navigator="true" 
+                                                pattern="dd/MM/yyyy" 
+                                                yearRange="c-100:c" 
+                                                value="#{personaBean.object.fechaNacimiento}" 
+                                                rendered="#{personaBean.isPersonaFisica()}" />
+                                    <h:outputLabel value="Sexo"  
+                                                   rendered="#{personaBean.isPersonaFisica()}" />
+                                    <p:selectOneMenu value="#{personaBean.sexo}" 
+                                                   rendered="#{personaBean.isPersonaFisica()}" >
+                                        <f:selectItem itemLabel="Seleccione...." itemValue="" />
+                                        <f:selectItems value="#{personaBean.sexos}" />
+                                    </p:selectOneMenu>
+                                    <h:outputLabel value="Razón Social" 
+                                                   rendered="#{!personaBean.isPersonaFisica()}" />
+                                    <p:inputText value="#{personaBean.object.razonSocial}" 
+                                                 rendered="#{!personaBean.isPersonaFisica()}" />
+                                    <h:outputLabel value="CUIT" 
+                                                   rendered="#{!personaBean.isPersonaFisica()}" />
+                                    <p:inputMask mask="99-99999999-9" 
+                                                 maxlength="13" 
+                                                 placeHolder=" " 
+                                                 value="#{personaBean.object.cuit}" 
+                                                 rendered="#{!personaBean.isPersonaFisica()}" />
+                                </h:panelGrid>
+                            </p:tab>
+                            <p:tab title="Domicilios" >
+                                <p:outputPanel id="domicilios" >
+                                    <p:outputPanel rendered="#{!personaBean.domiciliosParticulares.isEmpty()}" >
+                                        <p:fieldset collapsed="false" 
+                                                    toggleable="true" 
+                                                    legend="Particular" >
+                                            <div class="datalist-noborder">
+                                                <p:dataList itemType="circle" 
+                                                            value="#{personaBean.domiciliosParticulares}" 
+                                                            var="domParticular" >
+                                                    <p:column >
+                                                        #{domParticular}
+                                                        <p:commandLink actionListener="#{personaBean.removeDomicilio(domParticular)}" 
+                                                                    styleClass="ui-icon ui-icon-eliminar" 
+                                                                    update="#{componentFinder.getComponentId('domicilios')}"
+                                                                    process="@this" 
+                                                                    style="display:inline-block;margin:-0.2em 0" />
+                                                    </p:column>
+                                                </p:dataList>
+                                            </div>
+                                        </p:fieldset>
+                                        <br/>
+                                    </p:outputPanel>
+                                    <p:outputPanel rendered="#{!personaBean.domiciliosComerciales.isEmpty()}" >
+                                        <p:fieldset collapsed="true" 
+                                                    toggleable="true" 
+                                                    legend="Comercial" >
+                                            <div class="datalist-noborder">
+                                                <p:dataList itemType="circle" 
+                                                            value="#{personaBean.domiciliosComerciales}" 
+                                                            var="domComercial" >
+                                                    <p:column >
+                                                        #{domComercial}
+                                                        <p:commandLink actionListener="#{personaBean.removeDomicilio(domComercial)}" 
+                                                                    styleClass="ui-icon ui-icon-eliminar" 
+                                                                    update="#{componentFinder.getComponentId('domicilios')}"
+                                                                    process="@this" 
+                                                                    style="display:inline-block;margin:-0.2em 0" />
+                                                    </p:column>
+                                                </p:dataList>
+                                            </div>
+                                        </p:fieldset>
+                                        <br/>
+                                    </p:outputPanel>
+                                    <p:outputPanel rendered="#{!personaBean.domiciliosPostales.isEmpty()}" >
+                                        <p:fieldset collapsed="true" 
+                                                    toggleable="true" 
+                                                    legend="Postal" >
+                                            <div class="datalist-noborder">
+                                                <p:dataList itemType="circle" 
+                                                            value="#{personaBean.domiciliosPostales}" 
+                                                            var="domPostal" >
+                                                    <p:column >
+                                                        #{domPostal}
+                                                        <p:commandLink actionListener="#{personaBean.removeDomicilio(domPostal)}" 
+                                                                    styleClass="ui-icon ui-icon-eliminar" 
+                                                                    update="#{componentFinder.getComponentId('domicilios')}"
+                                                                    process="@this" 
+                                                                    style="display:inline-block;margin:-0.2em 0" />
+                                                    </p:column>
+                                                </p:dataList>
+                                            </div>
+                                        </p:fieldset>
+                                        <br/>
+                                    </p:outputPanel>
+                                    <p:outputPanel rendered="#{!personaBean.domiciliosLegales.isEmpty()}" >
+                                        <p:fieldset collapsed="true" 
+                                                    toggleable="true" 
+                                                    legend="Legal" >
+                                            <div class="datalist-noborder">
+                                                <p:dataList itemType="circle" 
+                                                            value="#{personaBean.domiciliosLegales}" 
+                                                            var="domLegal" >
+                                                    <p:column >
+                                                        #{domLegal}
+                                                        <p:commandLink actionListener="#{personaBean.removeDomicilio(domLegal)}" 
+                                                                    styleClass="ui-icon ui-icon-eliminar" 
+                                                                    update="#{componentFinder.getComponentId('domicilios')}"
+                                                                    process="@this"
+                                                                    style="display:inline-block;margin:-0.2em 0" />
+                                                    </p:column>
+                                                </p:dataList>
+                                            </div>
+                                        </p:fieldset>
+                                        <br/>
+                                    </p:outputPanel>
+                                </p:outputPanel>
+                                <h:panelGrid columns="3" >
+                                    <p:commandButton onclick="cleanDomicilio();agregarDomicilioLocalDiag.show()" 
+                                                     value="+ Domicilio Local" />
+                                    <p:commandButton onclick="cleanDomicilio();agregarDomicilioNacionalDiag.show()" 
+                                                     value="+ Domicilio Nacional" />
+                                    <p:commandButton onclick="cleanDomicilio();agregarDomicilioInternacionalDiag.show()" 
+                                                     value="+ Domicilio Internacional" />
+                                </h:panelGrid>
+                            </p:tab>
+                            <p:tab title="Contacto" >
+                                <p:outputPanel id="contactos" >
+                                    <p:outputPanel rendered="#{!personaBean.emails.isEmpty()}" >
+                                        <p:fieldset collapsed="false" 
+                                                    toggleable="true" 
+                                                    legend="Emails" >
+                                            <div class="datalist-noborder">
+                                                <p:dataList itemType="circle" 
+                                                            value="#{personaBean.emails}" 
+                                                            var="email" >
+                                                    <p:column >
+                                                        #{email}
+                                                        <p:commandLink actionListener="#{personaBean.removeContacto(email)}" 
+                                                                    styleClass="ui-icon ui-icon-eliminar" 
+                                                                    update="#{componentFinder.getComponentId('contactos')}"
+                                                                    process="@this" 
+                                                                    style="display:inline-block;margin:-0.2em 0" />
+                                                    </p:column>
+                                                </p:dataList>
+                                            </div>
+                                        </p:fieldset>
+                                        <br/>
+                                    </p:outputPanel>
+                                    <p:outputPanel rendered="#{!personaBean.telefonos.isEmpty()}" >
+                                        <p:fieldset collapsed="true" 
+                                                    toggleable="true" 
+                                                    legend="Teléfonos" >
+                                            <div class="datalist-noborder">
+                                                <p:dataList itemType="circle" 
+                                                            value="#{personaBean.telefonos}" 
+                                                            var="telefono" >
+                                                    <p:column >
+                                                        #{telefono}
+                                                        <p:commandLink actionListener="#{personaBean.removeContacto(telefono)}" 
+                                                                    styleClass="ui-icon ui-icon-eliminar" 
+                                                                    update="#{componentFinder.getComponentId('contactos')}"
+                                                                    process="@this" 
+                                                                    style="display:inline-block;margin:-0.2em 0" />
+                                                    </p:column>
+                                                </p:dataList>
+                                            </div>
+                                        </p:fieldset>
+                                        <br/>
+                                    </p:outputPanel>
+                                    <p:outputPanel rendered="#{!personaBean.webs.isEmpty()}" >
+                                        <p:fieldset collapsed="true" 
+                                                    toggleable="true" 
+                                                    legend="Páginas Web" >
+                                            <div class="datalist-noborder">
+                                                <p:dataList itemType="circle" 
+                                                            value="#{personaBean.webs}" 
+                                                            var="web" >
+                                                    <p:column >
+                                                        #{web}
+                                                        <p:commandLink actionListener="#{personaBean.removeDomicilio(web)}" 
+                                                                    styleClass="ui-icon ui-icon-eliminar" 
+                                                                    update="#{componentFinder.getComponentId('contactos')}"
+                                                                    process="@this" 
+                                                                    style="display:inline-block;margin:-0.2em 0" />
+                                                    </p:column>
+                                                </p:dataList>
+                                            </div>
+                                        </p:fieldset>
+                                        <br/>
+                                    </p:outputPanel>
+                                </p:outputPanel>
+                                <h:panelGrid columns="3" >
+                                    <p:commandButton onclick="cleanContacto();agregarContactoEmailDiag.show()" 
+                                                     value="+ Email" />
+                                    <p:commandButton onclick="cleanContacto();agregarContactoTelefonoDiag.show()" 
+                                                     value="+ Teléfono" />
+                                    <p:commandButton onclick="cleanContacto();agregarContactoWebDiag.show()" 
+                                                     value="+ Web" />
+                                </h:panelGrid>
+                            </p:tab>
+                            <ui:include src="/local-templates/personaProfiles.xhtml" />
+                        </p:accordionPanel>
+                        <br/>
+                        <h:panelGrid columns="3" >
+                            <p:commandButton ajax="true" 
+                                             oncomplete="updatePersonaTree()"
+                                             value="Grabar" 
+                                             actionListener="#{personaBean.updateObject}" 
+                                             update=":growl, :personaData" 
+                                             disabled="#{!(personasBean.canUpdate() || (personaBean.object.id == null and personasBean.canCreate()))}" />
+                            <p:commandButton ajax="true" 
+                                             oncomplete="updatePersonaTree()"
+                                             value="Eliminar" 
+                                             actionListener="#{personaBean.deleteObject}" 
+                                             update=":personaData, :growl" 
+                                             disabled="#{personaBean.object == null || personaBean.object.id == null || !personasBean.canDelete()}" />
+                            <p:commandButton onclick="cleanPerfil();agregarPerfilDiag.show()" 
+                                             value="+ Perfil" disabled="#{!personaBean.canAddMoreProfiles()}" />
+                        </h:panelGrid>
+
+
+                        <p:dialog closable="false" 
+                                  dynamic="true"
+                                  header="Agregar domicilio local" 
+                                  widgetVar="agregarDomicilioLocalDiag" 
+                                  onShow="setDireccionTipificada()" 
+                                  resizable="false" >
+                            <h:form id="agregarDomicilioLocalForm" >
+                                <h:panelGrid columns="2" >
+                                    <h:outputLabel value="Tipo" />
+                                    <h:panelGrid columns="1" >
+                                        <p:selectOneMenu value="#{personaBean.tipoDireccion}" >
+                                            <f:selectItem itemLabel="Seleccione..." itemValue="" />
+                                            <f:selectItems value="#{personaBean.tipoDirecciones}" />
+                                        </p:selectOneMenu>
+                                    </h:panelGrid>
+                                    <h:outputLabel value="Calle" />
+                                    <h:panelGrid columns="2" >
+                                        <p:inputText value="#{personaBean.calle}" 
+                                                    disabled="true" 
+                                                    id="calle" />
+                                        <p:outputPanel >
+                                            <p:commandButton ajax="true" 
+                                                            onclick="busqCalleDiag.show()" 
+                                                            icon="ui-icon-buscar" 
+                                                            id="buscarCallePersona" /> 
+                                            <pe:tooltip for="buscarCallePersona" 
+                                                        value="Buscar" 
+                                                        position="top left" />
+                                        </p:outputPanel>
+                                    </h:panelGrid>
+                                    <h:outputLabel value="Número" />
+                                    <h:panelGrid columns="3" >
+                                        <p:inputText value="#{personaBean.numero}" 
+                                                    maxlength="10" 
+                                                    size="5" />
+                                        <h:outputLabel value="U.F." />
+                                        <p:inputText value="#{personaBean.unidadFuncional}" 
+                                                    maxlength="10" 
+                                                    size="5" />
+                                    </h:panelGrid>
+                                    <h:outputLabel value="C.P." />
+                                    <h:panelGrid columns="1" >
+                                        <p:inputText value="#{personaBean.codigoPostal}" 
+                                                    maxlength="8" 
+                                                    size="5" />
+                                    </h:panelGrid>
+                                    <h:outputLabel value="Observaciones" />
+                                    <h:panelGrid columns="1" >
+                                        <p:inputTextarea value="#{personaBean.observaciones}" 
+                                                        maxlength="255" 
+                                                        autoResize="true" 
+                                                        cols="30" 
+                                                        rows="5" />
+                                    </h:panelGrid>
+                                    <f:facet name="footer">
+                                        <h:panelGrid columns="2" >
+                                            <p:commandButton value="Aceptar" 
+                                                            actionListener="#{personaBean.addDomicilio}" 
+                                                            update="#{componentFinder.getComponentId('domicilios')},:growl" 
+                                                            oncomplete="agregarDomicilioLocalDiag.hide()" 
+                                                            process="@form" />
+                                            <p:commandButton value="Cancelar" 
+                                                            actionListener="#{personaBean.cleanDomicilio}" 
+                                                            oncomplete="agregarDomicilioLocalDiag.hide()" 
+                                                            process="@form" />
+                                        </h:panelGrid>
+                                    </f:facet>
+                                </h:panelGrid>
+                            </h:form>
+                        </p:dialog>
+                        <p:dialog closable="false" 
+                                  dynamic="true"
+                                  header="Agregar domicilio nacional" 
+                                  widgetVar="agregarDomicilioNacionalDiag" 
+                                  onShow="setDireccionSinCalle()" 
+                                  resizable="false" >
+                            <h:form id="agregarDomicilioNacionalForm" >
+                                <h:panelGrid columns="2" >
+                                    <h:outputLabel value="Tipo" />
+                                    <h:panelGrid columns="1" >
+                                        <p:selectOneMenu value="#{personaBean.tipoDireccion}" >
+                                            <f:selectItem itemLabel="Seleccione..." itemValue="" />
+                                            <f:selectItems value="#{personaBean.tipoDirecciones}" />
+                                        </p:selectOneMenu>
+                                    </h:panelGrid>
+                                    <h:outputLabel value="Localidad" />
+                                    <h:panelGrid columns="2" >
+                                        <p:inputText value="#{personaBean.localidad}" 
+                                                    disabled="true" 
+                                                    id="localidadPersona" />
+                                        <p:outputPanel >
+                                            <p:commandButton ajax="true" 
+                                                            onclick="setLocalidadFlag(); busqLocalidadDiag.show();" 
+                                                            icon="ui-icon-buscar" 
+                                                            id="buscarLocalidadPersona" /> 
+                                            <pe:tooltip for="buscarLocalidadPersona" 
+                                                        value="Buscar" 
+                                                        position="top left" />
+                                        </p:outputPanel>
+                                    </h:panelGrid>
+                                    <h:outputLabel value="C.P." />
+                                    <h:panelGrid columns="1" >
+                                        <p:inputText value="#{personaBean.codigoPostal}" 
+                                                    maxlength="8" 
+                                                    size="5" />
+                                    </h:panelGrid>
+                                    <h:outputLabel value="Dirección" />
+                                    <h:panelGrid columns="1" >
+                                        <p:inputTextarea value="#{personaBean.direccion}" 
+                                                        maxlength="255" 
+                                                        autoResize="true" 
+                                                        cols="30" 
+                                                        rows="2" />
+                                    </h:panelGrid>
+                                    <h:outputLabel value="Observaciones" />
+                                    <h:panelGrid columns="1" >
+                                        <p:inputTextarea value="#{personaBean.observaciones}" 
+                                                        maxlength="255" 
+                                                        autoResize="true" 
+                                                        cols="30" 
+                                                        rows="5" />
+                                    </h:panelGrid>
+                                    <f:facet name="footer">
+                                        <h:panelGrid columns="2" >
+                                            <p:commandButton value="Aceptar" 
+                                                            actionListener="#{personaBean.addDomicilio}" 
+                                                            update="#{componentFinder.getComponentId('domicilios')},:growl" 
+                                                            oncomplete="agregarDomicilioNacionalDiag.hide()" 
+                                                            process="@form" />
+                                            <p:commandButton value="Cancelar" 
+                                                            actionListener="#{personaBean.cleanDomicilio}" 
+                                                            oncomplete="agregarDomicilioNacionalDiag.hide()" 
+                                                            process="@form" />
+                                        </h:panelGrid>
+                                    </f:facet>
+                                </h:panelGrid>
+                            </h:form>
+                        </p:dialog>
+                        <p:dialog closable="false" 
+                                  dynamic="true"
+                                  header="Agregar domicilio internacional" 
+                                  widgetVar="agregarDomicilioInternacionalDiag" 
+                                  onShow="setDireccionInternacional()" 
+                                  resizable="false" >
+                            <h:form id="agregarDomicilioInternacionalForm" >
+                                <h:panelGrid columns="2" >
+                                    <h:outputLabel value="Tipo" />
+                                    <h:panelGrid columns="1" >
+                                        <p:selectOneMenu value="#{personaBean.tipoDireccion}" >
+                                            <f:selectItem itemLabel="Seleccione..." itemValue="" />
+                                            <f:selectItems value="#{personaBean.tipoDirecciones}" />
+                                        </p:selectOneMenu>
+                                    </h:panelGrid>
+                                    <h:outputLabel value="Pais" />
+                                    <h:panelGrid columns="2" >
+                                        <p:inputText value="#{personaBean.pais}" 
+                                                    disabled="true" 
+                                                    id="paisPersona" />
+                                        <p:outputPanel >
+                                            <p:commandButton ajax="true" 
+                                                            onclick="setPaisFlag(); busqPaisDiag.show();" 
+                                                            icon="ui-icon-buscar" 
+                                                            id="buscarPaisPersona" /> 
+                                            <pe:tooltip for="buscarPaisPersona" 
+                                                        value="Buscar" 
+                                                        position="top left" />
+                                        </p:outputPanel>
+                                    </h:panelGrid>
+                                    <h:outputLabel value="Provincia" />
+                                    <h:panelGrid columns="1" >
+                                        <p:inputText value="#{personaBean.provincia}" 
+                                                        maxlength="40" 
+                                                        size="30" />
+                                    </h:panelGrid>
+                                    <h:outputLabel value="Localidad" />
+                                    <h:panelGrid columns="1" >
+                                        <p:inputText value="#{personaBean.localidadString}" 
+                                                        maxlength="40" 
+                                                        size="30" />
+                                    </h:panelGrid>
+                                    <h:outputLabel value="C.P." />
+                                    <h:panelGrid columns="1" >
+                                        <p:inputText value="#{personaBean.codigoPostal}" 
+                                                    maxlength="8" 
+                                                    size="5" />
+                                    </h:panelGrid>
+                                    <h:outputLabel value="Dirección" />
+                                    <h:panelGrid columns="1" >
+                                        <p:inputTextarea value="#{personaBean.direccion}" 
+                                                        maxlength="255" 
+                                                        autoResize="true" 
+                                                        cols="30" 
+                                                        rows="2" />
+                                    </h:panelGrid>
+                                    <h:outputLabel value="Observaciones" />
+                                    <h:panelGrid columns="1" >
+                                        <p:inputTextarea value="#{personaBean.observaciones}" 
+                                                        maxlength="255" 
+                                                        autoResize="true" 
+                                                        cols="30" 
+                                                        rows="5" />
+                                    </h:panelGrid>
+                                    <f:facet name="footer">
+                                        <h:panelGrid columns="2" >
+                                            <p:commandButton value="Aceptar" 
+                                                            actionListener="#{personaBean.addDomicilio}" 
+                                                            update="#{componentFinder.getComponentId('domicilios')},:growl" 
+                                                            oncomplete="agregarDomicilioInternacionalDiag.hide()" 
+                                                            process="@form" />
+                                            <p:commandButton value="Cancelar" 
+                                                            actionListener="#{personaBean.cleanDomicilio}" 
+                                                            oncomplete="agregarDomicilioInternacionalDiag.hide()" 
+                                                            process="@form" />
+                                        </h:panelGrid>
+                                    </f:facet>
+                                </h:panelGrid>
+                            </h:form>
+                        </p:dialog>
+                        <p:dialog closable="false" 
+                                  dynamic="true"
+                                  header="Agregar Email"
+                                  widgetVar="agregarContactoEmailDiag" 
+                                  onShow="setContactoEmail()"
+                                  resizable="false" >
+                            <h:form id="agregarContactoEmailForm" >
+                                <h:panelGrid columns="2" >
+                                    <h:outputLabel value="Tipo" />
+                                    <p:selectOneMenu value="#{personaBean.tipoContacto}" >
+                                        <f:selectItem itemLabel="Seleccione..." itemValue="" />
+                                        <f:selectItems value="#{personaBean.tipoContactos}" />
+                                    </p:selectOneMenu>
+                                    <h:outputLabel value="Email" />
+                                    <p:inputText value="#{personaBean.contacto}" 
+                                                    maxlength="40" 
+                                                    size="30" />
+                                    <f:facet name="footer">
+                                        <h:panelGrid columns="2" >
+                                            <p:commandButton value="Aceptar" 
+                                                            actionListener="#{personaBean.addContacto}" 
+                                                            update="#{componentFinder.getComponentId('contactos')},:growl" 
+                                                            oncomplete="agregarContactoEmailDiag.hide()" 
+                                                            process="@form" />
+                                            <p:commandButton value="Cancelar" 
+                                                            actionListener="#{personaBean.cleanContacto}" 
+                                                            oncomplete="agregarContactoEmailDiag.hide()" 
+                                                            process="@form" />
+                                        </h:panelGrid>
+                                    </f:facet>
+                                </h:panelGrid>
+                            </h:form>
+                        </p:dialog>
+                        <p:dialog closable="false" 
+                                  dynamic="true"
+                                  header="Agregar Teléfono"
+                                  widgetVar="agregarContactoTelefonoDiag" 
+                                  onShow="setContactoTelefono()"
+                                  resizable="false" >
+                            <h:form id="agregarContactoTelefonoForm" >
+                                <h:panelGrid columns="2" >
+                                    <h:outputLabel value="Tipo" />
+                                    <p:selectOneMenu value="#{personaBean.tipoContacto}" >
+                                        <f:selectItem itemLabel="Seleccione..." itemValue="" />
+                                        <f:selectItems value="#{personaBean.tipoContactos}" />
+                                    </p:selectOneMenu>
+                                    <h:outputLabel value="Teléfono" />
+                                    <p:inputText value="#{personaBean.contacto}" 
+                                                    maxlength="40" 
+                                                    size="30" />
+                                    <f:facet name="footer">
+                                        <h:panelGrid columns="2" >
+                                            <p:commandButton value="Aceptar" 
+                                                            actionListener="#{personaBean.addContacto}" 
+                                                            update="#{componentFinder.getComponentId('contactos')},:growl" 
+                                                            oncomplete="agregarContactoTelefonoDiag.hide()" 
+                                                            process="@form" />
+                                            <p:commandButton value="Cancelar" 
+                                                            actionListener="#{personaBean.cleanContacto}" 
+                                                            oncomplete="agregarContactoTelefonoDiag.hide()" 
+                                                            process="@form" />
+                                        </h:panelGrid>
+                                    </f:facet>
+                                </h:panelGrid>
+                            </h:form>
+                        </p:dialog>
+                        <p:dialog closable="false" 
+                                  dynamic="true"
+                                  header="Agregar Página Web"
+                                  widgetVar="agregarContactoWebDiag" 
+                                  onShow="setContactoWeb()"
+                                  resizable="false" >
+                            <h:form id="agregarContactoWebForm" >
+                                <h:panelGrid columns="2" >
+                                    <h:outputLabel value="Tipo" />
+                                    <p:selectOneMenu value="#{personaBean.tipoContacto}" >
+                                        <f:selectItem itemLabel="Seleccione..." itemValue="" />
+                                        <f:selectItems value="#{personaBean.tipoContactos}" />
+                                    </p:selectOneMenu>
+                                    <h:outputLabel value="Página Web" />
+                                    <p:inputText value="#{personaBean.contacto}" 
+                                                    maxlength="40" 
+                                                    size="30" />
+                                    <f:facet name="footer">
+                                        <h:panelGrid columns="2" >
+                                            <p:commandButton value="Aceptar" 
+                                                            actionListener="#{personaBean.addContacto}" 
+                                                            update="#{componentFinder.getComponentId('contactos')},:growl" 
+                                                            oncomplete="agregarContactoWebDiag.hide()" 
+                                                            process="@form" />
+                                            <p:commandButton value="Cancelar" 
+                                                            actionListener="#{personaBean.cleanContacto}" 
+                                                            oncomplete="agregarContactoWebDiag.hide()" 
+                                                            process="@form" />
+                                        </h:panelGrid>
+                                    </f:facet>
+                                </h:panelGrid>
+                            </h:form>
+                        </p:dialog>
+
+                        <p:dialog closable="false" 
+                                  dynamic="true"
+                                  header="Agregar Perfil"
+                                  widgetVar="agregarPerfilDiag" 
+                                  resizable="false" >
+                            <h:form id="agregarPerfilForm" >
+                                <h:panelGrid columns="2" >
+                                    <h:outputLabel value="Tipo" />
+                                    <p:selectOneMenu value="#{personaBean.tipoPerfil}" >
+                                        <f:selectItem itemLabel="Seleccione..." itemValue="" />
+                                        <f:selectItems value="#{personaBean.tipoPerfiles}" />
+                                    </p:selectOneMenu>
+                                    <f:facet name="footer">
+                                        <h:panelGrid columns="2" >
+                                            <p:commandButton value="Aceptar" 
+                                                            actionListener="#{personaBean.addPerfil}" 
+                                                            update=":growl,:personaData" 
+                                                            oncomplete="agregarPerfilDiag.hide()" 
+                                                            process="@form" />
+                                            <p:commandButton value="Cancelar" 
+                                                            actionListener="#{personaBean.cleanPerfil}" 
+                                                            oncomplete="agregarPerfilDiag.hide()" 
+                                                            process="@form" />
+                                        </h:panelGrid>
+                                    </f:facet>
+                                </h:panelGrid>
+                            </h:form>
+                        </p:dialog>
+
+                        
+                        <ui:include src="./../configuracion/paisDiag.xhtml" >
+                            <ui:param name="onSelectUpdate" value="#{componentFinder.getComponentId('pais')} #{componentFinder.getComponentId('paisPersona')}" />
+                        </ui:include>
+                        <h:form prependId="false" >
+                            <p:remoteCommand action="#{paisBean.newObject()}" 
+                                            oncomplete="setPaisHolder()" 
+                                            name="crearPaisCmd" 
+                                            process="@form" />
+                            <p:remoteCommand action="#{provinciaBean.selectPais()}" 
+                                            name="setPaisProvinciaHolder" 
+                                            process="@form" />
+                            <p:remoteCommand action="#{personaBean.selectPais()}" 
+                                            name="setPaisPersonaHolder" 
+                                            process="@form" />
+                            <p:remoteCommand action="#{provinciaBean.cleanPais()}" 
+                                            name="cleanPaisPersonaHolder" 
+                                            process="@form" />
+                            <script type="text/javascript" >
+                                var paisFlag = 0;
+                                function setPaisFlag() {
+                                    paisFlag = 1;
+                                }
+                                function removePaisFlag() {
+                                    paisFlag = 0;
+                                }
+                                function setPaisHolder() {
+                                    if (paisFlag == 1) {
+                                        setPaisPersonaHolder();
+                                    } else {
+                                        setPaisProvinciaHolder();
+                                    }
+                                }
+                                function cleanPaisHolder() {
+                                    removePaisFlag();
+                                    cleanPaisPersonaHolder();
+                                }
+                            </script>
+                        </h:form>
+
+                        <ui:include src="./../configuracion/provinciaDiag.xhtml" >
+                            <ui:param name="onSelectUpdate" value="#{componentFinder.getComponentId('provincia')}" />
+                        </ui:include>
+                        <h:form prependId="false" >
+                            <p:remoteCommand action="#{provinciaBean.newObject()}" 
+                                            oncomplete="setProvinciaHolder()" 
+                                            name="crearProvinciaCmd" 
+                                            process="@form" />
+                            <p:remoteCommand action="#{localidadBean.selectProvincia()}" 
+                                            name="setProvinciaHolder" 
+                                            process="@form" />
+                            <p:remoteCommand action="#{localidadBean.cleanProvincia()}" 
+                                            name="cleanProvinciaHolder" 
+                                            process="@form" />
+                        </h:form>
+
+                        <ui:include src="./../configuracion/localidadDiag.xhtml" >
+                            <ui:param name="onSelectUpdate" value="#{componentFinder.getComponentId('localidad')} #{componentFinder.getComponentId('localidadPersona')}" />
+                        </ui:include>
+                        <h:form prependId="false" >
+                            <p:remoteCommand action="#{localidadBean.newObject()}" 
+                                            oncomplete="setLocalidadHolder()" 
+                                            name="crearLocalidadCmd" 
+                                            process="@form" />
+                            <p:remoteCommand action="#{calleBean.selectLocalidad()}" 
+                                            name="setLocalidadCalleHolder" 
+                                            process="@form" />
+                            <p:remoteCommand action="#{personaBean.selectLocalidad()}" 
+                                            name="setLocalidadPersonaHolder" 
+                                            process="@form" />
+                            <p:remoteCommand action="#{calleBean.cleanLocalidad()}" 
+                                            name="cleanLocalidadPersonaHolder" 
+                                            process="@form" />
+                            <script type="text/javascript" >
+                                var localidadFlag = 0;
+                                function setLocalidadFlag() {
+                                    localidadFlag = 1;
+                                }
+                                function removeLocalidadFlag() {
+                                    localidadFlag = 0;
+                                }
+                                function setLocalidadHolder() {
+                                    if (localidadFlag == 1) {
+                                        setLocalidadPersonaHolder();
+                                    } else {
+                                        setLocalidadCalleHolder();
+                                    }
+                                }
+                                function cleanLocalidadHolder() {
+                                    removeLocalidadFlag();
+                                    cleanLocalidadPersonaHolder();
+                                }
+                            </script>
+                        </h:form>
+
+                        <ui:include src="./../configuracion/calleDiag.xhtml" >
+                            <ui:param name="onSelectUpdate" value="#{componentFinder.getComponentId('calle')}" />
+                        </ui:include>
+                        <h:form prependId="false" >
+                            <p:remoteCommand action="#{calleBean.newObject()}" 
+                                            oncomplete="setCalleHolder()" 
+                                            name="crearCalleCmd" 
+                                            process="@form" />
+                            <p:remoteCommand action="#{personaBean.selectCalle()}" 
+                                            name="setCalleHolder" 
+                                            process="@form" />
+                            <p:remoteCommand action="#{personaBean.cleanCalle()}" 
+                                            name="cleanCalleHolder" 
+                                            process="@form" />
+                        </h:form>
+                        <h:form prependId="false" >
+                            <p:remoteCommand action="#{personaBean.selectDireccion(0)}" 
+                                            name="setDireccionTipificada" 
+                                            process="@form" />
+                            <p:remoteCommand action="#{personaBean.selectDireccion(1)}" 
+                                            name="setDireccionSinCalle" 
+                                            process="@form" />
+                            <p:remoteCommand action="#{personaBean.selectDireccion(2)}" 
+                                            name="setDireccionInternacional" 
+                                            process="@form" />
+                            <p:remoteCommand name="cleanDomicilio" 
+                                            actionListener="#{personaBean.cleanDomicilio}"
+                                            update="#{componentFinder.getComponentId('agregarDomicilioLocalForm')}, #{componentFinder.getComponentId('agregarDomicilioNacionalForm')} #{componentFinder.getComponentId('agregarDomicilioInternacionalForm')}"
+                                            process="@form" />
+                        </h:form>
+                        <h:form prependId="false" >
+                            <p:remoteCommand action="#{personaBean.selectContacto(0)}" 
+                                            name="setContactoEmail" 
+                                            process="@form" />
+                            <p:remoteCommand action="#{personaBean.selectContacto(1)}" 
+                                            name="setContactoTelefono" 
+                                            process="@form" />
+                            <p:remoteCommand action="#{personaBean.selectContacto(2)}" 
+                                            name="setContactoWeb" 
+                                            process="@form" />
+                            <p:remoteCommand name="cleanContacto" 
+                                            actionListener="#{personaBean.cleanContacto}"
+                                            update="#{componentFinder.getComponentId('agregarContactoEmailForm')} #{componentFinder.getComponentId('agregarContactoTelefonoForm')} #{componentFinder.getComponentId('agregarContactoWebForm')}"
+                                            process="@form" />
+                        </h:form>
+                        <h:form prependId="false" >
+                            <p:remoteCommand name="cleanPerfil" 
+                                            actionListener="#{personaBean.cleanPerfil}"
+                                            update="#{componentFinder.getComponentId('agregarPerfilForm')}"
+                                            process="@form" />
+                        </h:form>
+
+                            
+                    </h:form>
+                </p:panel>
+                <h:form >
+                    <p:remoteCommand name="updatePersonaTree" 
+                                     actionListener="#{personasBean.search}" 
+                                     update=":#{p:component('tree')}" />
+                </h:form>
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>

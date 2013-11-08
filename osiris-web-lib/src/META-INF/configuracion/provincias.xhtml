@@ -1,0 +1,88 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+    <body>
+
+        <ui:composition template="./../templates/baseTemplate.xhtml">
+
+            <ui:define name="left">
+                <p:panel header="Provincias" 
+                         id="busqProvincias" >
+                    <ezcomp:busqueda onSelectUpdate=":provinciaData"
+                                     objectSelectListener="#{provinciaBean.selectObject}"
+                                     canDelete="true"
+                                     cleanObject="#{provinciaBean.cleanObject}"
+                                     objects="#{provinciasBean.objects}"
+                                     searchKey="#{provinciasBean.searchKey}"
+                                     searchLabel="Nombre"
+                                     searchObject="#{provinciasBean.search}"
+                                     selectedNode="#{provinciasBean.selectedNode}"
+                                     nodeExpandListener="#{provinciasBean.expandNode}" 
+                                     canCreate="#{provinciasBean.canCreate()}" 
+                                     newObject="#{provinciaBean.newObject}" 
+                                     onCreateUpdate=":provinciaData" 
+                                     showCreateDiag="false" />
+                </p:panel>
+            </ui:define>
+
+            <ui:define name="center">
+                <p:panel header="Provincias" 
+                         id="provinciaData" 
+                         visible="#{provinciaBean.object != null and provinciasBean.canRead()}" >
+                    <h:form prependId="false" 
+                            id="provinciaForm" 
+                            binding="${componentFinder.mainForm}">
+                        <ui:include src="provincia.xhtml" />
+                        <h:panelGrid columns="2" >
+                            <p:commandButton ajax="true" 
+                                             oncomplete="updateProvinciaTree()"
+                                             value="Grabar" 
+                                             actionListener="#{provinciaBean.updateObject}" 
+                                             update=":growl, :provinciaData" 
+                                             disabled="#{!(provinciasBean.canUpdate() || (provinciaBean.object.id == null and provinciasBean.canCreate()))}" />
+                            <p:commandButton ajax="true" 
+                                             oncomplete="updateProvinciaTree()"
+                                             value="Eliminar" 
+                                             actionListener="#{provinciaBean.deleteObject}" 
+                                             update=":provinciaData, :growl" 
+                                             disabled="#{provinciaBean.object == null || provinciaBean.object.id == null || !provinciasBean.canDelete()}" />
+                        </h:panelGrid>
+
+
+                        <ui:include src="paisDiag.xhtml" >
+                            <ui:param name="onSelectUpdate" value="#{componentFinder.getComponentId('pais')}" />
+                        </ui:include>
+                        <h:form prependId="false" >
+                            <p:remoteCommand action="#{paisBean.newObject()}" 
+                                            oncomplete="setPaisHolder()" 
+                                            name="crearPaisCmd" 
+                                            process="@form" />
+                            <p:remoteCommand action="#{provinciaBean.selectPais()}" 
+                                            name="setPaisHolder" 
+                                            process="@form" />
+                            <p:remoteCommand action="#{provinciaBean.cleanPais()}" 
+                                            name="cleanPaisHolder" 
+                                            process="@form" />
+                        </h:form>
+
+                    </h:form>
+                </p:panel>
+                <h:form >
+                    <p:remoteCommand name="updateProvinciaTree" 
+                                     actionListener="#{provinciasBean.search}" 
+                                     update=":#{p:component('tree')}" />
+                </h:form>
+
+            </ui:define>
+
+
+        </ui:composition>
+
+    </body>
+</html>

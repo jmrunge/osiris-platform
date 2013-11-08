@@ -1,0 +1,100 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+    <body>
+
+        <ui:composition template="./../templates/baseTemplate.xhtml">
+
+            <ui:define name="left">
+                <p:panel header="Grupos" id="busqGrupos" >
+                    <ezcomp:busqueda onSelectUpdate=":grupoData"
+                                     objectSelectListener="#{systemGroupBean.selectObject}"
+                                     canDelete="true"
+                                     cleanObject="#{systemGroupBean.cleanObject}"
+                                     objects="#{systemGroupsBean.objects}"
+                                     searchKey="#{systemGroupsBean.searchKey}"
+                                     searchLabel="Nombre, Descripcion, Grupo"
+                                     searchObject="#{systemGroupsBean.search}"
+                                     selectedNode="#{systemGroupsBean.selectedNode}"
+                                     nodeExpandListener="#{systemGroupsBean.expandNode}"
+                                     canCreate="#{systemGroupsBean.canCreate()}" 
+                                     newObject="#{systemGroupBean.newObject}" 
+                                     onCreateUpdate=":grupoData" 
+                                     showCreateDiag="false" />
+                </p:panel>
+            </ui:define>
+
+            <ui:define name="center">
+                <p:panel header="Grupo" 
+                         id="grupoData" 
+                         visible="#{systemGroupBean.object != null and systemGroupsBean.canRead()}" >
+                    <h:form prependId="false" 
+                            id="grupoForm" >
+                        <h:panelGrid columns="2" >
+                            <h:outputLabel value="Nombre" />
+                            <h:panelGrid columns="1" >
+                                <p:inputText value="#{systemGroupBean.object.nombre}" />
+                            </h:panelGrid>
+                            <h:outputLabel value="Descripción" />
+                            <h:panelGrid columns="1" >
+                                <p:inputText value="#{systemGroupBean.object.descripcion}" />
+                            </h:panelGrid>
+                        </h:panelGrid>
+                        <p:panel >
+                            <h:panelGrid columns="1" >
+                                <p:panel id="permisos" 
+                                         header="Permisos" >
+                                    <p:treeTable value="#{systemGroupBean.systemOptionNode}" 
+                                                    var="so" scrollHeight="180" scrollWidth="455" scrollable="true">
+                                        <p:column width="160" headerText="Opción">
+                                            <h:outputText value="#{so.name}" />
+                                        </p:column>
+                                        <p:column width="160" headerText="Heredado">
+                                            <h:outputText value="#{so.inherited}" />
+                                        </p:column>
+                                        <p:column width="54" headerText="Permitido">
+                                            <center>
+                                                <p:selectBooleanCheckbox rendered="#{so.option != null}" 
+                                                                            disabled="#{so.isReadOnly()}" 
+                                                                            value="#{so.value}">
+                                                    <p:ajax update="@(.ui-chkbox)" listener="#{so.valueChanged}" />
+                                                </p:selectBooleanCheckbox>
+                                            </center>
+                                        </p:column>
+                                    </p:treeTable>
+                                </p:panel>
+                            </h:panelGrid>
+                        </p:panel>
+                        <h:panelGrid columns="2" >
+                            <p:commandButton ajax="true" 
+                                             oncomplete="updateGroupTree()"
+                                             value="Grabar" 
+                                             actionListener="#{systemGroupBean.updateObject}" 
+                                             update=":growl, :grupoData" 
+                                             disabled="#{!(systemGroupsBean.canUpdate() || (systemGroupBean.object.id == null and systemGroupsBean.canCreate()))}" />
+                            <p:commandButton ajax="true" 
+                                             oncomplete="updateGroupTree()"
+                                             value="Eliminar" 
+                                             actionListener="#{systemGroupBean.deleteObject}" 
+                                             update=":grupoData, :growl" 
+                                             disabled="#{systemGroupBean.object == null || systemGroupBean.object.id == null || !systemGroupsBean.canDelete()}" />
+                        </h:panelGrid>
+                    </h:form>
+                </p:panel>
+                <h:form >
+                    <p:remoteCommand name="updateGroupTree" 
+                                     actionListener="#{systemGroupsBean.search}" 
+                                     update=":#{p:component('tree')}" />
+                </h:form>
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>

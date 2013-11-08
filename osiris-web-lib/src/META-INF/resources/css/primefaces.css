@@ -1,0 +1,131 @@
+/* 
+    Document   : primefaces
+    Created on : 16-feb-2011, 9:34:16
+    Author     : jmrunge
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+/* 
+   TODO customize this sample style
+   Syntax recommendation http://www.w3.org/TR/REC-CSS2/
+*/
+
+.ui-layout-unit {
+    border: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+   
+.ui-picklist-list {
+    height:150px !important;
+}
+
+.ui-widget, .ui-widget .ui-widget {
+    font-size: 10pt !important;
+    font-family: Verdana !important; 
+}
+
+.ui-menubar .ui-menuitem-link, .ui-menubar .menubar-text {
+    font-size: 10pt !important;
+    font-family: Verdana !important; 
+}
+
+.ui-menubar .menubar-text:hover {
+    font-size: 10pt !important;
+    font-family: Verdana !important; 
+}
+
+.menubar-subitem-text .ui-menuitem-text {
+    font-size: 10pt !important;
+    font-family: Verdana !important; 
+}
+
+.ui-panelgrid tr, .ui-panelgrid td {
+    border:0 !important;
+}
+
+.ui-icon-config {
+    background-image: url(css/config.png) !important;
+}
+
+.ui-icon-inicio {
+    background-image: url(css/home.png) !important;
+}
+
+.ui-icon-buscar {
+    background-image: url(css/find.png) !important;
+}
+
+.ui-icon-nuevo {
+    background-image: url(css/new.png) !important;
+}
+
+.ui-icon-modificar {
+    background-image: url(css/edit.png) !important;
+}
+
+.ui-icon-desconectar {
+    background-image: url(css/disconnect.png) !important;
+}
+
+.ui-icon-conectar {
+    background-image: url(css/connect.png) !important;
+}
+
+.ui-icon-enviar-mensaje {
+    background-image: url(css/sendmessage.png) !important;
+}
+
+.ui-icon-eliminar {
+    background-image: url(css/delete.png) !important;
+}
+
+.ui-icon-derecha {
+    background-image: url(css/right.png) !important;
+}
+
+.ui-icon-izquierda {
+    background-image: url(css/left.png) !important;
+}
+
+.ui-icon-arriba {
+    background-image: url(css/up.png) !important;
+}
+
+.ui-icon-abajo {
+    background-image: url(css/down.png) !important;
+}
+
+.ui-icon-historial {
+    background-image: url(css/history.png) !important;
+}
+
+.ui-icon-custom { 
+    width: 16px; 
+    height: 16px; 
+}
+
+.ui-icon-custom-opcion {background-image: url(css/opcion.png) !important;}
+
+.ui-icon-custom-persona {background-image: url(css/persona.png) !important;}
+
+.ui-icon-custom-usuario {background-image: url(css/usuario.png) !important;}
+
+.ui-icon-custom-rol {background-image: url(css/rol.png) !important;}
+
+.ui-icon-custom-grupo {background-image: url(css/grupo.png) !important;}
+
+.ui-icon-custom-empleado {background-image: url(css/empleado.png) !important;}
+
+.ui-icon-custom-localidad {background-image: url(css/localidad.png) !important;}
+
+.ui-icon-custom-pais {background-image: url(css/pais.png) !important;}
+
+.ui-icon-custom-provincia {background-image: url(css/provincia.png) !important;}
+
+.ui-icon-custom-cuenta {background-image: url(css/cuenta.png) !important;}
+
+.ui-icon-custom-catastro {background-image: url(css/catastro.png) !important;}
+
+.ui-icon-custom-calle {background-image: url(css/calle.png) !important;}

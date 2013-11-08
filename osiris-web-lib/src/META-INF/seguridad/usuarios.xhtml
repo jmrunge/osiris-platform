@@ -1,0 +1,199 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:pe="http://primefaces.org/ui/extensions"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+    <body>
+
+        <ui:composition template="./../templates/baseTemplate.xhtml">
+
+            <ui:define name="left">
+                <p:panel header="Usuarios" 
+                         id="busqUsuarios" >
+                    <ezcomp:busqueda onSelectUpdate=":usuarioData"
+                                     objectSelectListener="#{systemUserBean.selectObject}"
+                                     canDelete="true"
+                                     cleanObject="#{systemUserBean.cleanObject}"
+                                     objects="#{systemUsersBean.objects}"
+                                     searchKey="#{systemUsersBean.searchKey}"
+                                     searchLabel="Persona, Nombre, Rol, Grupo"
+                                     searchObject="#{systemUsersBean.search}"
+                                     selectedNode="#{systemUsersBean.selectedNode}"
+                                     nodeExpandListener="#{systemUsersBean.expandNode}" 
+                                     canCreate="#{systemUsersBean.canCreate()}" 
+                                     newObject="#{systemUserBean.newObject}" 
+                                     onCreateUpdate=":usuarioData" 
+                                     showCreateDiag="false" />
+                </p:panel>
+            </ui:define>
+
+            <ui:define name="center">
+                <p:panel header="Usuario" 
+                         id="usuarioData" 
+                         visible="#{systemUserBean.object != null and systemUsersBean.canRead()}" >
+                    <h:form prependId="false" 
+                            id="usuarioForm" >
+                        <p:outputPanel rendered="#{systemUserBean.object != null}" >
+                            <h:panelGrid columns="6" >
+                                <h:outputLabel value="Persona" />
+                                <h:panelGrid columns="2" >
+                                    <p:inputText value="#{systemUserBean.object.persona.nombre}" 
+                                                disabled="true" 
+                                                id="persona" />
+                                    <p:outputPanel >
+                                        <p:commandButton ajax="true" 
+                                                        onclick="busqPersonaDiag.show()" 
+                                                        icon="ui-icon-buscar" 
+                                                        id="buscarPersona" /> 
+                                        <pe:tooltip for="buscarPersona" value="Buscar" position="top left" />
+                                    </p:outputPanel>
+                                </h:panelGrid>
+                                <h:outputLabel value="Puede modificar duración de sesión" />
+                                <p:selectBooleanCheckbox value="#{systemUserBean.object.canChangeSessionTimeout}" />
+                                <h:outputLabel value="Duración de sesión" />
+                                <pe:inputNumber decimalPlaces="0" 
+                                                 maxValue="30" 
+                                                 minValue="1" 
+                                                 value="#{systemUserBean.object.sessionTimeout}" />
+                                <h:outputLabel value="Nombre" />
+                                <h:panelGrid columns="1" >
+                                    <p:inputText value="#{systemUserBean.object.nombre}" />
+                                </h:panelGrid>
+                                <h:outputLabel value="Puede personalizar pantalla" />
+                                <p:selectBooleanCheckbox value="#{systemUserBean.object.canChangeTheme}" />
+                                <h:outputLabel value="Puede ver usuarios conectados" />
+                                <p:selectBooleanCheckbox value="#{systemUserBean.object.canSeeConnectedUsers}" >
+                                    <p:ajax update="canSendMessages,canDisconnectUser" 
+                                            listener="#{systemUserBean.connectedUsersChangeListener}" /> 
+                                </p:selectBooleanCheckbox>
+                                <h:outputLabel value="Contraseña" />
+                                <h:panelGrid columns="1" >
+                                    <p:password goodLabel="Aceptable" 
+                                                promptLabel="Ingrese la contraseña" 
+                                                strongLabel="Fuerte" 
+                                                weakLabel="Débil" 
+                                                value="#{systemUserBean.object.password}"
+                                                feedback="true"/>
+                                </h:panelGrid>
+                                <h:outputLabel value="Puede enviar mensajes" />
+                                <p:selectBooleanCheckbox id="canSendMessages" 
+                                                        value="#{systemUserBean.object.canSendMessages}" 
+                                                        disabled="#{!systemUserBean.object.canSeeConnectedUsers}" />
+                                <h:outputLabel value="Puede desconectar usuarios" />
+                                <p:selectBooleanCheckbox id="canDisconnectUser" 
+                                                         value="#{systemUserBean.object.canDisconnectUser}" 
+                                                         disabled="#{!systemUserBean.object.canSeeConnectedUsers}" />
+                            </h:panelGrid>
+                        </p:outputPanel>
+                        <p:panel >
+                            <h:panelGrid columns="2" >
+                                <p:outputPanel id="roles" >
+                                    <p:pickList itemLabel="#{role}" 
+                                                itemValue="#{role}" 
+                                                value="#{systemUserBean.roles}" 
+                                                var="role"
+                                                onTransfer="handleTransfer(e)">
+                                        <f:facet name="sourceCaption">Roles Existentes</f:facet>
+                                        <f:facet name="targetCaption">Roles del Usuario</f:facet>
+                                    </p:pickList>
+                                    <p:commandButton id="hiddenLink"
+                                                        value="Actualizar Permisos" 
+                                                        update=":usuarioForm:permisos" 
+                                                        actionListener="#{systemUserBean.updateRoles}"
+                                                        style="display:none" />
+                                    <script type="text/javascript">
+                                        function handleTransfer(e) {
+                                            item = e.item;
+                                            $('#hiddenLink').click();
+                                        }
+                                    </script>
+                                </p:outputPanel>
+                                <p:panel id="permisos" 
+                                         header="Permisos" >
+                                    <p:treeTable value="#{systemUserBean.systemOptionNode}" 
+                                                    var="so" scrollHeight="180" scrollWidth="455" scrollable="true">
+                                        <p:column width="160" headerText="Opción">
+                                            <h:outputText value="#{so.name}" />
+                                        </p:column>
+                                        <p:column width="160" headerText="Heredado">
+                                            <h:outputText value="#{so.inherited}" />
+                                        </p:column>
+                                        <p:column width="54" headerText="Permitido">
+                                            <center>
+                                                <p:selectBooleanCheckbox rendered="#{so.option != null}" 
+                                                                            disabled="#{so.isReadOnly()}" 
+                                                                            value="#{so.value}">
+                                                    <p:ajax update="@(.ui-chkbox)" listener="#{so.valueChanged}" />
+                                                </p:selectBooleanCheckbox>
+                                            </center>
+                                        </p:column>
+                                    </p:treeTable>
+                                </p:panel>
+                            </h:panelGrid>
+                        </p:panel>
+                        <h:panelGrid columns="2" >
+                            <p:commandButton ajax="true" 
+                                             oncomplete="updateUserTree()"
+                                             value="Grabar" 
+                                             actionListener="#{systemUserBean.updateObject}" 
+                                             update=":growl, :usuarioData" 
+                                             disabled="#{!(systemUsersBean.canUpdate() || (systemUserBean.object.id == null and systemUsersBean.canCreate())) || systemUserBean.isAdmin()}" />
+                            <p:commandButton ajax="true" 
+                                             oncomplete="updateUserTree()"
+                                             value="Eliminar" 
+                                             actionListener="#{systemUserBean.deleteObject}" 
+                                             update=":usuarioData, :growl" 
+                                             disabled="#{systemUserBean.object == null || systemUserBean.object.id == null || !systemUsersBean.canDelete() || systemUserBean.isAdmin()}" />
+                        </h:panelGrid>
+                    </h:form>
+                </p:panel>
+                <h:form >
+                    <p:remoteCommand name="updateUserTree" 
+                                     actionListener="#{systemUsersBean.search}" 
+                                     update=":#{p:component('tree')}" />
+                </h:form>
+                <p:dialog header="Buscar Persona" 
+                          closable="false" 
+                          resizable="false" 
+                          modal="false" 
+                          widgetVar="busqPersonaDiag" 
+                          onShow="setPersonaHolder()" 
+                          onHide="cleanPersonaHolder()" >
+                    <h:panelGrid columns="1">
+                        <ezcomp:busqueda canDelete="false"
+                                         cleanObject="#{personasBean.cleanObject}"
+                                         onSelectUpdate=":usuarioForm:persona"
+                                         objectSelectListener="#{personasBean.selectObject}"
+                                         objects="#{personasBean.objects}"
+                                         searchKey="#{personasBean.searchKey}"
+                                         searchLabel="Nombre, DNI, Usuario"
+                                         searchObject="#{personasBean.searchPersonaFisica}"
+                                         selectedNode="#{personasBean.selectedNode}"
+                                         nodeExpandListener="#{personasBean.expandNode}"
+                                         canCreate="false" 
+                                         showCreateDiag="false" />
+                        <f:facet name="footer">
+                            <h:form >
+                                <p:commandButton value="Cerrar" 
+                                                 onclick="busqPersonaDiag.hide()" />
+                            </h:form>
+                        </f:facet>
+                    </h:panelGrid>
+                </p:dialog>
+                <h:form prependId="false" >
+                    <p:remoteCommand action="#{systemUserBean.selectPersona()}" 
+                                     name="setPersonaHolder" />
+                    <p:remoteCommand action="#{systemUserBean.cleanPersona()}" 
+                                     name="cleanPersonaHolder" />
+                </h:form>
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>

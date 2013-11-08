@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+    
+    <ui:composition>
+        <h:panelGrid columns="2" >
+            <h:outputLabel value="Nombre" />
+            <p:inputText value="#{paisBean.object.nombre}" />
+            <h:outputLabel value="Predeterminado" />
+            <p:selectBooleanCheckbox value="#{paisBean.predeterminado}" />
+        </h:panelGrid>
+        <p:panel header="Provincias" closable="false" style="width:320px;" visible="#{(paisBean.provinciaCollection != null) and (!paisBean.provinciaCollection.isEmpty())}" >
+            <p:scrollPanel style="overflow: auto;width:300px;height:200px;border:none;" >
+                <p:dataList value="#{paisBean.provinciaCollection}" var="provincia"  >
+                    <p:column >
+                        #{provincia}
+                    </p:column>
+                </p:dataList>
+            </p:scrollPanel>
+        </p:panel>
+    </ui:composition>
+</html>
+

@@ -1,0 +1,104 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+    <body>
+
+        <ui:composition template="./../templates/baseTemplate.xhtml">
+
+            <ui:define name="left">
+                <p:panel header="Localidades" 
+                         id="busqLocalidades" >
+                    <ezcomp:busqueda onSelectUpdate=":localidadData"
+                                     objectSelectListener="#{localidadBean.selectObject}"
+                                     canDelete="true"
+                                     cleanObject="#{localidadBean.cleanObject}"
+                                     objects="#{localidadesBean.objects}"
+                                     searchKey="#{localidadesBean.searchKey}"
+                                     searchLabel="Nombre"
+                                     searchObject="#{localidadesBean.search}"
+                                     selectedNode="#{localidadesBean.selectedNode}"
+                                     nodeExpandListener="#{localidadesBean.expandNode}" 
+                                     canCreate="#{localidadesBean.canCreate()}" 
+                                     newObject="#{localidadBean.newObject}" 
+                                     onCreateUpdate=":localidadData" 
+                                     showCreateDiag="false" />
+                </p:panel>
+            </ui:define>
+
+            <ui:define name="center">
+                <p:panel header="Localidades" 
+                         id="localidadData" 
+                         visible="#{localidadBean.object != null and localidadesBean.canRead()}" >
+                    <h:form prependId="false" 
+                            id="localidadForm" 
+                            binding="${componentFinder.mainForm}">
+                        <ui:include src="localidad.xhtml" />
+                        <h:panelGrid columns="2" >
+                            <p:commandButton ajax="true" 
+                                             oncomplete="updateLocalidadTree()"
+                                             value="Grabar" 
+                                             actionListener="#{localidadBean.updateObject}" 
+                                             update=":growl, :localidadData" 
+                                             disabled="#{!(localidadesBean.canUpdate() || (localidadBean.object.id == null and localidadesBean.canCreate()))}" />
+                            <p:commandButton ajax="true" 
+                                             oncomplete="updateLocalidadTree()"
+                                             value="Eliminar" 
+                                             actionListener="#{localidadBean.deleteObject}" 
+                                             update=":localidadData, :growl" 
+                                             disabled="#{localidadBean.object == null || localidadBean.object.id == null || !localidadesBean.canDelete()}" />
+                        </h:panelGrid>
+
+
+                        <ui:include src="paisDiag.xhtml" >
+                            <ui:param name="onSelectUpdate" value="#{componentFinder.getComponentId('pais')}" />
+                        </ui:include>
+                        <h:form prependId="false" >
+                            <p:remoteCommand action="#{paisBean.newObject()}" 
+                                            oncomplete="setPaisHolder()" 
+                                            name="crearPaisCmd" 
+                                            process="@form" />
+                            <p:remoteCommand action="#{provinciaBean.selectPais()}" 
+                                            name="setPaisHolder" 
+                                            process="@form" />
+                            <p:remoteCommand action="#{provinciaBean.cleanPais()}" 
+                                            name="cleanPaisHolder" 
+                                            process="@form" />
+                        </h:form>
+
+                        <ui:include src="provinciaDiag.xhtml" >
+                            <ui:param name="onSelectUpdate" value="#{componentFinder.getComponentId('provincia')}" />
+                        </ui:include>
+                        <h:form prependId="false" >
+                            <p:remoteCommand action="#{provinciaBean.newObject()}" 
+                                            oncomplete="setProvinciaHolder()" 
+                                            name="crearProvinciaCmd" 
+                                            process="@form" />
+                            <p:remoteCommand action="#{localidadBean.selectProvincia()}" 
+                                            name="setProvinciaHolder" 
+                                            process="@form" />
+                            <p:remoteCommand action="#{localidadBean.cleanProvincia()}" 
+                                            name="cleanProvinciaHolder" 
+                                            process="@form" />
+                        </h:form>
+
+
+                    </h:form>
+                </p:panel>
+                <h:form >
+                    <p:remoteCommand name="updateLocalidadTree" 
+                                     actionListener="#{localidadesBean.search}" 
+                                     update=":#{p:component('tree')}" />
+                </h:form>
+
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>

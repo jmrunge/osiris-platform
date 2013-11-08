@@ -1,0 +1,350 @@
+<?xml version='1.0' encoding='UTF-8' ?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:pe="http://primefaces.org/ui/extensions"
+      xmlns:c="http://java.sun.com/jsp/jstl/core">
+    
+    <h:head >
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <!--link href="#{facesContext.externalContext.requestContextPath}/resources/css/default.css" rel="stylesheet" type="text/css" />
+        <link href="#{facesContext.externalContext.requestContextPath}/resources/css/tableLayout.css" rel="stylesheet" type="text/css" />
+        <link href="#{facesContext.externalContext.requestContextPath}/resources/css/primefaces.css" rel="stylesheet" type="text/css" />
+        <link href="#{facesContext.externalContext.requestContextPath}/resources/css/local.css" rel="stylesheet" type="text/css" /-->
+        <h:outputStylesheet library="css" name="default.css" />
+        <h:outputStylesheet library="css" name="tableLayout.css" />
+        <h:outputStylesheet library="css" name="primefaces.css" />
+        <h:outputStylesheet library="local" name="local.css" />
+        <title>#{configBean.title}</title>
+    </h:head>
+    
+    <h:body onload="showDialog(#{appBean.loggedIn})" >
+        <p:layout fullPage="true" >
+            <p:layoutUnit position="north" 
+                          size="112" 
+                          collapsible="true" 
+                          gutter="0" >
+                <table width="100%" align="center" class="northTable" >
+                    <tr >
+                        <ui:include src="/local-templates/northTable.xhtml" />
+                    </tr>
+                    <tr >
+                        <td align="right" >
+                            <h:form prependId="false" 
+                                    id="commandForm">
+                                <h:panelGrid columns="3" >
+                                    <p:ajaxStatus style="width:16px;height:16px;">
+                                        <f:facet name="start">
+                                            <h:graphicImage library="css" name="loading.gif" />
+                                        </f:facet>
+
+                                        <f:facet name="complete">
+                                            <h:outputText value="" />
+                                        </f:facet>
+                                    </p:ajaxStatus>
+                                    <p:outputPanel >
+                                        <p:commandButton id="home" 
+                                                         icon="ui-icon-inicio" 
+                                                         actionListener="#{configBean.reload()}" />
+                                        <pe:tooltip for="home" 
+                                                    value="Ir al Inicio" 
+                                                    position="top right" />
+                                    </p:outputPanel>
+                                    <p:outputPanel >
+                                        <p:commandButton id="userName" 
+                                                         value="#{appBean.userName}" 
+                                                         iconPos="right" 
+                                                         icon="ui-icon-config" 
+                                                         type="button" />
+                                        <p:menu overlay="true" 
+                                                trigger="userName" 
+                                                my="right bottom" 
+                                                at="right top" >
+                                            <p:menuitem value="Usuarios Conectados" 
+                                                        onclick="usersDialog.show()" 
+                                                        ajax="true" 
+                                                        style="font-size: 10pt; font-family: Verdana;" 
+                                                        rendered="#{appBean.loggedIn and appBean.canSeeConnectedUsers}" 
+                                                        update=":usersDialogForm" />
+                                            <p:menuitem value="Configuración" 
+                                                        onclick="themeDialog.show()" 
+                                                        ajax="true" 
+                                                        rendered="#{appBean.loggedIn and appBean.canChangeConfig}" 
+                                                        style="font-size: 10pt; font-family: Verdana;" />
+                                            <p:menuitem value="Cambiar Contraseña" 
+                                                        onclick="passwordDialog.show()" 
+                                                        ajax="true" 
+                                                        style="font-size: 10pt; font-family: Verdana;" />
+                                            <p:menuitem value="Cerrar Sesión" 
+                                                        actionListener="#{appBean.logout}" 
+                                                        ajax="false" style="font-size: 10pt; font-family: Verdana;" />
+                                        </p:menu>
+                                        <pe:tooltip for="userName" 
+                                                    value="Herramientas del usuario" 
+                                                    position="top right" />
+                                    </p:outputPanel>
+                                </h:panelGrid>
+                            </h:form>
+                        </td>
+                    </tr>
+                </table>
+            </p:layoutUnit>
+            <p:layoutUnit position="center" 
+                          collapsible="true" 
+                          gutter="0" >
+                <h:form prependId="false" 
+                        id="menuForm" >
+                    <p:menubar model="#{appBean.getMenu()}" 
+                               id="menubar" />
+                    <c:forEach items="#{appBean.menuToolTips}" var="tt" >
+                        <pe:tooltip forSelector="##{tt.key} span" value="#{tt.value}" />
+                    </c:forEach>
+                </h:form>
+                <p:growl id="growl" 
+                         showDetail="true" 
+                         life="3000" />
+                <p:growl id="msgGrowl" 
+                         showDetail="true" 
+                         sticky="true" />
+                <table width="100%" >
+                    <tr >
+                        <td width="1" 
+                            valign="top" >
+                            <ui:insert name="left" />
+                        </td>
+                        <td valign="top" >
+                            <ui:insert 
+                                name="center" />
+                        </td>
+                    </tr>
+                </table>
+            </p:layoutUnit>
+            <p:layoutUnit position="south" 
+                          size="25" 
+                          collapsible="true" 
+                          gutter="0" >
+                <center >
+                    <h:outputLink style="font-family: Verdana;font-size: 8pt" 
+                                  value="http://www.zirsi.com.ar" 
+                                  class="zirsi" >Desarrollado por ZIR S.I.</h:outputLink>
+                </center>
+            </p:layoutUnit>
+        </p:layout>
+        <p:dialog widgetVar="loginDialog" 
+                  header="Login" 
+                  closable="false" 
+                  modal="true" 
+                  resizable="false" >
+            <h:form prependId="false">
+                 <h:panelGrid columns="2" cellpadding="5">
+                    <h:outputLabel for="username" 
+                                   value="Usuario *" />
+                    <h:inputText value="#{loginBean.username}" 
+                                 id="username" 
+                                 required="true" 
+                                 label="Usuario" />
+
+                    <h:outputLabel for="password" 
+                                   value="Contraseña: * " />
+                    <h:inputSecret value="#{loginBean.password}" 
+                                   id="password" 
+                                   required="true" 
+                                   label="Contraseña" />
+
+                    <f:facet name="footer">
+                        <p:commandButton value="Login" 
+                                         update=":growl,:commandForm:userName,:menuForm:menubar" 
+                                         actionListener="#{loginBean.login}"
+                                         oncomplete="handleLoginRequest(xhr, status, args)"/>
+                    </f:facet>
+                 </h:panelGrid>
+             </h:form>
+        </p:dialog>
+        <h:form prependId="false">
+            <p:idleMonitor onidle="logout()" 
+                           timeout="#{appBean.sessionTimeout}" />
+            <p:remoteCommand actionListener="#{appBean.logout}" 
+                             async="true" 
+                             id="logout" 
+                             name="logout" />
+            <p:remoteCommand actionListener="#{configBean.reload}" 
+                             async="true" 
+                             id="reload" 
+                             name="reload" />
+            <p:poll async="true" 
+                    interval="500" 
+                    listener="#{appBean.checkMessages}" 
+                    process="@this" />
+        </h:form>
+        <p:dialog widgetVar="passwordDialog" 
+                  header="Cambiar Contraseña" 
+                  closable="false" 
+                  modal="true" 
+                  resizable="false" 
+                  width="320" >
+            <h:form>
+                 <h:panelGrid columns="2" 
+                              cellpadding="5">
+                    <h:outputLabel for="oldPass" 
+                                   value="Contraseña Actual *" />
+                    <h:inputSecret value="#{passwordBean.oldPassword}" 
+                                   id="oldPass" 
+                                   required="true" 
+                                   label="Contraseña Anterior" />
+
+                    <h:outputLabel for="newPass1" 
+                                   value="Nueva Contraseña *" />
+                    <p:password goodLabel="Aceptable" 
+                                promptLabel="Ingrese la contraseña" 
+                                strongLabel="Fuerte" 
+                                weakLabel="Débil" 
+                                value="#{passwordBean.newPassword1}" 
+                                id="newPass1" 
+                                required="true" 
+                                label="Contraseña Actual" 
+                                feedback="true" />
+
+                    <h:outputLabel for="newPass2" 
+                                   value="Repita Contraseña *" />
+                    <p:password value="#{passwordBean.newPassword2}" 
+                                id="newPass2" 
+                                required="true" 
+                                label="Repita Contraseña" />
+
+                    <f:facet name="footer">
+                        <h:panelGrid columns="2" 
+                                     cellpadding="5">
+                            <p:commandButton value="Cambiar" 
+                                             update=":growl" 
+                                             actionListener="#{passwordBean.changePassword}"
+                                             oncomplete="handleChangePasswordRequest(xhr, status, args)"/>
+                            <p:commandButton value="Cancelar" 
+                                             onclick="passwordDialog.hide()" />
+                        </h:panelGrid>
+                    </f:facet>
+                 </h:panelGrid>
+             </h:form>
+        </p:dialog>
+        <p:dialog widgetVar="themeDialog" 
+                  header="Configuración" 
+                  closable="false" 
+                  modal="true" 
+                  resizable="false" >
+            <h:form >
+                 <h:panelGrid columns="2">
+                    <h:outputLabel value="Duración de sesión" />
+                    <pe:inputNumber decimalPlaces="0" 
+                                     maxValue="30" 
+                                     minValue="1" 
+                                     disabled="#{!userConfigBean.canChangeSessionTimeout}"
+                                     value="#{userConfigBean.sessionTimeout}" />
+                    <h:outputLabel value="Tema de Pantalla" />
+                    <p:themeSwitcher style="width:150px" 
+                                     id="themeSwitcher"
+                                     disabled="#{!userConfigBean.canChangeTheme}"
+                                     value="#{userConfigBean.theme}" >  
+                        <f:selectItem itemLabel="Seleccione..." itemValue="" />  
+                        <f:selectItems value="#{userConfigBean.themes}" />  
+                        <p:ajax listener="#{userConfigBean.saveTheme}" />
+                    </p:themeSwitcher>                            
+                    <f:facet name="footer">
+                        <h:panelGrid columns="1">
+                            <p:commandButton value="Cerrar" 
+                                             onclick="themeDialog.hide()" />
+                        </h:panelGrid>
+                    </f:facet>
+                 </h:panelGrid>
+            </h:form>
+        </p:dialog>
+        <p:dialog widgetVar="usersDialog" 
+                  header="Usuarios Conectados" 
+                  closable="true" 
+                  modal="true" 
+                  resizable="false" >
+            <h:form id="usersDialogForm" >
+                <p:dataList value="#{appBean.loggedUsers}" 
+                            var="user" 
+                            paginator="true" 
+                            rows="5" 
+                            paginatorTemplate="{PreviousPageLink} {CurrentPageReport} {NextPageLink} {RowsPerPageDropdown}"  
+                            rowsPerPageTemplate="5,10,15" 
+                            type="none">  
+                        <p:column>  
+                            <p:spacer width="5" height="5" />
+                            <p:commandButton icon="ui-icon-desconectar" 
+                                            update=":growl" 
+                                            oncomplete="usersDialog.hide()" 
+                                            rendered="#{appBean.loggedIn and appBean.canDisconnectUser}" 
+                                            title="Desconectar Usuario" 
+                                            action="#{appBean.disconnectUser(user)}" >  
+                            </p:commandButton>  
+                            <p:spacer width="5" height="5" />
+                            <p:commandButton icon="ui-icon-enviar-mensaje" 
+                                            update=":growl" 
+                                            oncomplete="messageDialog.show()" 
+                                            rendered="#{appBean.loggedIn and appBean.canSendMessages}" 
+                                            title="Desconectar Usuario" 
+                                            action="#{appBean.setMessageRecipient(user)}" >  
+                            </p:commandButton>  
+
+                            <h:outputText value="#{user.nombre}, #{user.nombreCompleto}" style="margin-left:10px" />  
+                            <br />  
+                        </p:column>  
+                </p:dataList>  
+            </h:form>
+        </p:dialog>
+        <p:dialog widgetVar="messageDialog" 
+                  header="Enviar Mensaje" 
+                  closable="true" 
+                  modal="true" 
+                  resizable="false" >
+            <h:form id="messageDialogForm" >
+                <h:panelGrid columns="1">
+                    <p:inputTextarea rows="4" 
+                                     cols="40" 
+                                     maxlength="140"       
+                                     autoResize="true" 
+                                     value="#{appBean.message}" />  
+                    <f:facet name="footer">
+                        <h:panelGrid columns="2">
+                            <p:commandButton value="Enviar" 
+                                             oncomplete="messageDialog.hide();usersDialog.hide();"
+                                             actionListener="#{appBean.sendMessage}" 
+                                             update=":growl" />
+                            <p:commandButton value="Cancelar" 
+                                             onclick="messageDialog.hide();usersDialog.hide();" 
+                                             action="#{appBean.setMessageRecipient(null)}" />  
+                        </h:panelGrid>
+                    </f:facet>
+                </h:panelGrid>
+            </h:form>
+        </p:dialog>
+    </h:body>
+    <script type="text/javascript">
+        function showDialog(isLoggedIn) {
+            if (!isLoggedIn) {
+                loginDialog.show();
+            }
+        }
+        function handleLoginRequest(xhr, status, args) {
+            if(args.validationFailed || !args.loggedIn) {
+                jQuery('#dialog').effect("shake", { times:3 }, 100);
+            } else {
+                loginDialog.hide();
+                jQuery('#loginLink').fadeOut();
+                reload();
+            }
+        }
+        function handleChangePasswordRequest(xhr, status, args) {
+            if(args.validationFailed || !args.passwordChanged) {
+                jQuery('#dialog').effect("shake", { times:3 }, 100);
+            } else {
+                passwordDialog.hide();
+                jQuery('#passwordLink').fadeOut();
+            }
+        }
+    </script>
+</html>

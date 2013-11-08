@@ -1,0 +1,69 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+    <ui:composition>
+        <p:dialog header="Buscar Provincia" 
+                closable="false" 
+                resizable="false" 
+                modal="false" 
+                widgetVar="busqProvinciaDiag" 
+                onShow="setProvinciaHolder()" 
+                onHide="cleanProvinciaHolder()" >
+            <h:panelGrid columns="1">
+                <ezcomp:busqueda canDelete="false"
+                                cleanObject="#{provinciasBean.cleanObject}"
+                                onSelectUpdate="#{onSelectUpdate}"
+                                objectSelectListener="#{provinciasBean.selectObject}"
+                                objects="#{provinciasBean.objects}"
+                                searchKey="#{provinciasBean.searchKey}"
+                                searchLabel="Nombre"
+                                searchObject="#{provinciasBean.search}"
+                                selectedNode="#{provinciasBean.selectedNode}"
+                                nodeExpandListener="#{provinciasBean.expandNode}"
+                                canCreate="#{provinciasBean.canCreate()}" 
+                                onCreateUpdate="#{componentFinder.getComponentId('provinciaForm')}" 
+                                createDiagCmd="crearProvinciaDiag.show()" 
+                                showCreateDiag="true" />
+                <f:facet name="footer">
+                    <h:form >
+                        <p:commandButton value="Cerrar" 
+                                        onclick="busqProvinciaDiag.hide()" />
+                    </h:form>
+                </f:facet>
+            </h:panelGrid>
+        </p:dialog>
+        <p:dialog header="Crear Provincia" 
+                closable="false" 
+                resizable="false" 
+                modal="false" 
+                widgetVar="crearProvinciaDiag" 
+                onShow="crearProvinciaCmd()" 
+                onHide="cleanProvinciaHolder()" >
+            <h:form prependId="false" 
+                    id="provinciaForm" >
+                <ui:include src="provincia.xhtml" />
+                <h:panelGrid columns="1">
+                    <f:facet name="footer">
+                        <p:commandButton ajax="true" 
+                                        oncomplete="crearProvinciaDiag.hide();busqProvinciaDiag.hide()"
+                                        value="Crear" 
+                                        actionListener="#{provinciaBean.updateObject}" 
+                                        update=":growl, #{componentFinder.getComponentId('provinciaForm')}, #{onSelectUpdate}" 
+                                        process="@form" />
+                        <h:outputLabel value="  " />
+                        <p:commandButton ajax="true" 
+                                        onclick="crearProvinciaDiag.hide()"
+                                        value="Cancelar" />
+                    </f:facet>
+                </h:panelGrid>
+            </h:form>
+        </p:dialog>
+    </ui:composition>
+</html>
+

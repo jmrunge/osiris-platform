@@ -1,0 +1,120 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+    <body>
+
+        <ui:composition template="./../templates/baseTemplate.xhtml">
+
+            <ui:define name="left">
+                <p:panel header="Calles" 
+                         id="busqCalles" >
+                    <ezcomp:busqueda onSelectUpdate=":calleData"
+                                     objectSelectListener="#{calleBean.selectObject}"
+                                     canDelete="true"
+                                     cleanObject="#{calleBean.cleanObject}"
+                                     objects="#{callesBean.objects}"
+                                     searchKey="#{callesBean.searchKey}"
+                                     searchLabel="Nombre"
+                                     searchObject="#{callesBean.search}"
+                                     selectedNode="#{callesBean.selectedNode}"
+                                     nodeExpandListener="#{callesBean.expandNode}" 
+                                     canCreate="#{callesBean.canCreate()}" 
+                                     newObject="#{calleBean.newObject}" 
+                                     onCreateUpdate=":calleData" 
+                                     showCreateDiag="false" />
+                </p:panel>
+            </ui:define>
+
+            <ui:define name="center">
+                <p:panel header="Calles" 
+                         id="calleData" 
+                         visible="#{calleBean.object != null and callesBean.canRead()}" >
+                    <h:form prependId="false" 
+                            id="calleForm" 
+                            binding="${componentFinder.mainForm}">
+                        <ui:include src="calle.xhtml" />
+                        <h:panelGrid columns="2" >
+                            <p:commandButton ajax="true" 
+                                             oncomplete="updateCalleTree()"
+                                             value="Grabar" 
+                                             actionListener="#{calleBean.updateObject}" 
+                                             update=":growl, :calleData" 
+                                             disabled="#{!(callesBean.canUpdate() || (calleBean.object.id == null and callesBean.canCreate()))}" />
+                            <p:commandButton ajax="true" 
+                                             oncomplete="updateCalleTree()"
+                                             value="Eliminar" 
+                                             actionListener="#{calleBean.deleteObject}" 
+                                             update=":calleData, :growl" 
+                                             disabled="#{calleBean.object == null || calleBean.object.id == null || !callesBean.canDelete()}" />
+                        </h:panelGrid>
+
+
+                        <ui:include src="paisDiag.xhtml" >
+                            <ui:param name="onSelectUpdate" value="#{componentFinder.getComponentId('pais')}" />
+                        </ui:include>
+                        <h:form prependId="false" >
+                            <p:remoteCommand action="#{paisBean.newObject()}" 
+                                            oncomplete="setPaisHolder()" 
+                                            name="crearPaisCmd" 
+                                            process="@form" />
+                            <p:remoteCommand action="#{provinciaBean.selectPais()}" 
+                                            name="setPaisHolder" 
+                                            process="@form" />
+                            <p:remoteCommand action="#{provinciaBean.cleanPais()}" 
+                                            name="cleanPaisHolder" 
+                                            process="@form" />
+                        </h:form>
+
+                        <ui:include src="provinciaDiag.xhtml" >
+                            <ui:param name="onSelectUpdate" value="#{componentFinder.getComponentId('provincia')}" />
+                        </ui:include>
+                        <h:form prependId="false" >
+                            <p:remoteCommand action="#{provinciaBean.newObject()}" 
+                                            oncomplete="setProvinciaHolder()" 
+                                            name="crearProvinciaCmd" 
+                                            process="@form" />
+                            <p:remoteCommand action="#{localidadBean.selectProvincia()}" 
+                                            name="setProvinciaHolder" 
+                                            process="@form" />
+                            <p:remoteCommand action="#{localidadBean.cleanProvincia()}" 
+                                            name="cleanProvinciaHolder" 
+                                            process="@form" />
+                        </h:form>
+
+                        <ui:include src="localidadDiag.xhtml" >
+                            <ui:param name="onSelectUpdate" value="#{componentFinder.getComponentId('localidad')}" />
+                        </ui:include>
+                        <h:form prependId="false" >
+                            <p:remoteCommand action="#{localidadBean.newObject()}" 
+                                            oncomplete="setLocalidadHolder()" 
+                                            name="crearLocalidadCmd" 
+                                            process="@form" />
+                            <p:remoteCommand action="#{calleBean.selectLocalidad()}" 
+                                            name="setLocalidadHolder" 
+                                            process="@form" />
+                            <p:remoteCommand action="#{calleBean.cleanLocalidad()}" 
+                                            name="cleanLocalidadHolder" 
+                                            process="@form" />
+                        </h:form>
+                            
+
+                    </h:form>
+                </p:panel>
+                <h:form >
+                    <p:remoteCommand name="updateCalleTree" 
+                                     actionListener="#{callesBean.search}" 
+                                     update=":#{p:component('tree')}" />
+                </h:form>
+
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>

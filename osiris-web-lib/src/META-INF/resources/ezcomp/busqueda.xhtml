@@ -1,0 +1,166 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:pe="http://primefaces.org/ui/extensions"
+      xmlns:cc="http://java.sun.com/jsf/composite"
+      xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+    <!-- INTERFACE -->
+    <cc:interface componentType="busquedaCC">
+        <cc:attribute name="onSelectUpdate" 
+                      required="true" 
+                      type="java.lang.String"/>
+        <cc:attribute name="objectSelectListener" 
+                      required="true" 
+                      method-signature="void selectObject(org.primefaces.event.NodeSelectEvent)" />
+        <cc:attribute name="nodeExpandListener" 
+                      required="true" 
+                      method-signature="void expandNode(org.primefaces.event.NodeExpandEvent)" />
+        <cc:attribute name="cleanObject" 
+                      required="true" 
+                      method-signature="void cleanObject()" />
+        <cc:attribute name="canDelete" 
+                      required="true" 
+                      type="java.lang.Boolean"/>
+        <cc:attribute name="searchKey" 
+                      required="true" 
+                      type="java.lang.String"/>
+        <cc:attribute name="searchObject" 
+                      required="true" 
+                      method-signature="void search()"/>
+        <cc:attribute name="searchLabel" 
+                      required="true" 
+                      type="java.lang.String"/>
+        <cc:attribute name="objects" 
+                      required="true" 
+                      type="org.primefaces.model.TreeNode"/>
+        <cc:attribute name="selectedNode" 
+                      required="true" 
+                      type="org.primefaces.model.TreeNode"/>
+        <cc:attribute name="canCreate" 
+                      required="true" 
+                      type="java.lang.Boolean"/>
+        <cc:attribute name="showCreateDiag" 
+                      required="true" 
+                      type="java.lang.Boolean"/>
+        <cc:attribute name="createDiagCmd" 
+                      required="false" 
+                      type="java.lang.String"/>
+        <cc:attribute name="newObject" 
+                      required="false" 
+                      method-signature="java.lang.String newObject()" />
+        <cc:attribute name="onCreateUpdate" 
+                      required="false" 
+                      type="java.lang.String"/>
+    </cc:interface>
+
+    <!-- IMPLEMENTATION -->
+    <cc:implementation>
+        <h:form id="busqForm" enctype="multipart/form-data">
+            <h:panelGrid columns="1" >
+                <h:panelGrid columns="3" >
+                    <p:inputText maxlength="40" 
+                                 size="23" 
+                                 value="#{cc.attrs.searchKey}" />
+                    <p:outputPanel >
+                        <p:commandButton ajax="true" 
+                                        icon="ui-icon-buscar" 
+                                        actionListener="#{cc.searchObject}" 
+                                        update="busqForm:tree, :growl" 
+                                        process="@form"
+                                        id="buscar" /> 
+                        <pe:tooltip for="buscar" value="Buscar" position="top left" />
+                    </p:outputPanel>
+                    <p:outputPanel >
+                        <p:commandButton ajax="true" 
+                                        icon="ui-icon-nuevo" 
+                                        actionListener="#{cc.newObject}" 
+                                        rendered="#{cc.attrs.canCreate and !cc.attrs.showCreateDiag}"
+                                        update="busqForm:tree, #{cc.attrs.onCreateUpdate}" 
+                                        process="@form"
+                                        id="nuevo" />
+                        <pe:tooltip for="nuevo" value="Crear Nuevo" position="top left" />
+                        <p:commandButton ajax="true" 
+                                        icon="ui-icon-nuevo" 
+                                        onclick="#{cc.attrs.createDiagCmd}" 
+                                        rendered="#{cc.attrs.canCreate and cc.attrs.showCreateDiag}"
+                                        update="busqForm:tree, #{cc.attrs.onCreateUpdate}" 
+                                        process="@form"
+                                        id="nuevoDiag" />
+                        <pe:tooltip for="nuevoDiag" value="Crear Nuevo" position="top left" />
+                    </p:outputPanel>
+                </h:panelGrid>
+                <h:outputText style="font-family: Verdana; font-size: 7pt; color: gray" 
+                              value="#{cc.attrs.searchLabel}" />
+            </h:panelGrid>
+            <br/>
+            <p:scrollPanel style="overflow: auto;width:280px;height:350px;" id="objectTree" >
+                <p:tree id="tree"
+                    value="#{cc.attrs.objects}"
+                    var="object"
+                    dynamic="true"
+                    cache="false" 
+                    selectionMode="single"
+                    selection="#{cc.attrs.selectedNode}"
+                    style="border: none;width:260px;" >
+
+                    <p:ajax event="select" 
+                            update="#{cc.attrs.onSelectUpdate}" 
+                            listener="#{cc.objectSelectListener}" />
+                    <p:ajax event="expand" 
+                            listener="#{cc.nodeExpandListener}" />
+
+                    <p:treeNode id="node" >
+                        <h:outputText value="#{object}" />
+                    </p:treeNode>
+
+                    <p:treeNode type="#{appBean.systemUserNodeType}" icon="ui-icon-custom ui-icon-custom-usuario" >
+                        <h:outputText value="#{object}" />
+                    </p:treeNode>
+                    <p:treeNode type="#{appBean.personaNodeType}" icon="ui-icon-custom ui-icon-custom-persona" >
+                        <h:outputText value="#{object}" />
+                    </p:treeNode>
+                    <p:treeNode type="#{appBean.systemRoleNodeType}" icon="ui-icon-custom ui-icon-custom-rol" >
+                        <h:outputText value="#{object}" />
+                    </p:treeNode>
+                    <p:treeNode type="#{appBean.systemGroupNodeType}" icon="ui-icon-custom ui-icon-custom-grupo" >
+                        <h:outputText value="#{object}" />
+                    </p:treeNode>
+                    <p:treeNode type="#{appBean.systemOptionNodeType}" icon="ui-icon-custom ui-icon-custom-opcion" >
+                        <h:outputText value="#{object}" />
+                    </p:treeNode>
+                    <p:treeNode type="#{appBean.paisNodeType}" icon="ui-icon-custom ui-icon-custom-pais" >
+                        <h:outputText value="#{object}" />
+                    </p:treeNode>
+                    <p:treeNode type="#{appBean.provinciaNodeType}" icon="ui-icon-custom ui-icon-custom-provincia" >
+                        <h:outputText value="#{object}" />
+                    </p:treeNode>
+                    <p:treeNode type="#{appBean.localidadNodeType}" icon="ui-icon-custom ui-icon-custom-localidad" >
+                        <h:outputText value="#{object}" />
+                    </p:treeNode>
+                    <p:treeNode type="#{appBean.cuentaNodeType}" icon="ui-icon-custom ui-icon-custom-cuenta" >
+                        <h:outputText value="#{object}" />
+                    </p:treeNode>
+                    <p:treeNode type="#{appBean.catastroNodeType}" icon="ui-icon-custom ui-icon-custom-catastro" >
+                        <h:outputText value="#{object}" />
+                    </p:treeNode>
+                    <p:treeNode type="#{appBean.calleNodeType}" icon="ui-icon-custom ui-icon-custom-calle" >
+                        <h:outputText value="#{object}" />
+                    </p:treeNode>
+                    <p:treeNode type="#{appBean.empleadoNodeType}" icon="ui-icon-custom ui-icon-custom-empleado" >
+                        <h:outputText value="#{object}" />
+                    </p:treeNode>
+                    
+                    <c:forEach items="#{localNodesBean.localNodeTypes}" var="nt" >
+                        <p:treeNode type="#{nt[0]}" icon="#{nt[1]}" >
+                            <h:outputText value="#{object}" />
+                        </p:treeNode>                    
+                    </c:forEach>
+                </p:tree>
+            </p:scrollPanel>
+        </h:form>
+    </cc:implementation>
+</html>

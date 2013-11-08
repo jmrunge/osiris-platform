@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
+
+    <head>
+        <title>#{configBean.title} - Duplicated Session</title>
+      <style type="text/css">
+         html, body   { background-color: darkred; height: 100%; margin: 0; padding: 0;
+                        color: white; text-align: center; }
+         div#centered { border: 0; background-color: red; height: 30%; width: 30%;
+                        position: absolute; left: 35%; top: 35%; color: black; }
+      </style>
+    </head>
+    <body>
+        <div id="centered">
+            <h:form >
+                <br/>
+                <span style="font-family:Verdana;font-size:16px;font-style:normal;font-weight:bold;text-decoration:none;text-transform:none;color:000000;background-color:ffffff;">Duplicated Session</span>
+                <br/>
+                <br/>
+                <h:panelGrid columns="2" >
+                    <h:panelGrid columns="2" >
+                        <h:graphicImage value="./resources/css/error.png" />
+                        <h:graphicImage value="./../resources/css/error.png" />
+                    </h:panelGrid>
+                    <span style="font-family:Verdana;font-size:14px;font-style:normal;font-weight:bold;text-decoration:none;text-transform:none;color:000000;background-color:ffffff;">Su sesión ha sido cerrada porque se ha iniciado una nueva sesión con su mismo usuario desde otra terminal</span>
+                </h:panelGrid>
+                <br/>
+                <center>
+                    <a href="#{configBean.homeURL}" ><span style="font-family:Verdana;font-size:14px;font-style:normal;font-weight:bold;text-decoration:none;text-transform:none;color:000000;background-color:ffffff;">Iniciar sesión nuevamente</span></a>
+                </center>
+            </h:form>
+        </div>
+    </body>
+</html>

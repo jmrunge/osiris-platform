@@ -1,0 +1,69 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+    <ui:composition>
+        <p:dialog header="Buscar País" 
+                closable="false" 
+                resizable="false" 
+                modal="false" 
+                widgetVar="busqPaisDiag" 
+                onShow="setPaisHolder()" 
+                onHide="cleanPaisHolder()" >
+            <h:panelGrid columns="1">
+                <ezcomp:busqueda canDelete="false"
+                                cleanObject="#{paisesBean.cleanObject}"
+                                onSelectUpdate="#{onSelectUpdate}"
+                                objectSelectListener="#{paisesBean.selectObject}"
+                                objects="#{paisesBean.objects}"
+                                searchKey="#{paisesBean.searchKey}"
+                                searchLabel="Nombre"
+                                searchObject="#{paisesBean.search}"
+                                selectedNode="#{paisesBean.selectedNode}"
+                                nodeExpandListener="#{paisesBean.expandNode}"
+                                canCreate="#{paisesBean.canCreate()}" 
+                                onCreateUpdate="#{componentFinder.getComponentId('paisForm')}" 
+                                createDiagCmd="crearPaisDiag.show()" 
+                                showCreateDiag="true" />
+                <f:facet name="footer">
+                    <h:form >
+                        <p:commandButton value="Cerrar" 
+                                        onclick="busqPaisDiag.hide()" />
+                    </h:form>
+                </f:facet>
+            </h:panelGrid>
+        </p:dialog>
+        <p:dialog header="Crear País" 
+                closable="false" 
+                resizable="false" 
+                modal="false" 
+                widgetVar="crearPaisDiag" 
+                onShow="crearPaisCmd()" 
+                onHide="cleanPaisHolder()" >
+            <h:form prependId="false" 
+                    id="paisForm" >
+                <ui:include src="pais.xhtml" />
+                <h:panelGrid columns="1">
+                    <f:facet name="footer">
+                        <p:commandButton ajax="true" 
+                                        oncomplete="crearPaisDiag.hide();busqPaisDiag.hide()"
+                                        value="Crear" 
+                                        actionListener="#{paisBean.updateObject}" 
+                                        update=":growl, #{componentFinder.getComponentId('paisForm')}, #{onSelectUpdate}" 
+                                        process="@form" />
+                        <h:outputLabel value="  " />
+                        <p:commandButton ajax="true" 
+                                        onclick="crearPaisDiag.hide()"
+                                        value="Cancelar" />
+                    </f:facet>
+                </h:panelGrid>
+            </h:form>
+        </p:dialog>
+    </ui:composition>
+</html>
+

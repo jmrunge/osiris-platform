@@ -1,0 +1,122 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+    <body>
+
+        <ui:composition template="./../templates/baseTemplate.xhtml">
+
+            <ui:define name="left">
+                <p:panel header="Roles" 
+                         id="busqRoles" >
+                    <ezcomp:busqueda onSelectUpdate=":rolData"
+                                     objectSelectListener="#{systemRoleBean.selectObject}"
+                                     canDelete="true"
+                                     cleanObject="#{systemRoleBean.cleanObject}"
+                                     objects="#{systemRolesBean.objects}"
+                                     searchKey="#{systemRolesBean.searchKey}"
+                                     searchLabel="Nombre, Descripcion, Grupo"
+                                     searchObject="#{systemRolesBean.search}"
+                                     selectedNode="#{systemRolesBean.selectedNode}"
+                                     nodeExpandListener="#{systemRolesBean.expandNode}"
+                                     canCreate="#{systemRolesBean.canCreate()}" 
+                                     newObject="#{systemRoleBean.newObject}" 
+                                     onCreateUpdate=":rolData" 
+                                     showCreateDiag="false" />
+                </p:panel>
+            </ui:define>
+
+            <ui:define name="center">
+                <p:panel header="Rol" 
+                         id="rolData" 
+                         visible="#{systemRoleBean.object != null and systemRolesBean.canRead()}" >
+                    <h:form prependId="false" 
+                            id="rolForm">
+                        <h:panelGrid columns="2" >
+                            <h:outputLabel value="Nombre" />
+                            <h:panelGrid columns="1" >
+                                <p:inputText value="#{systemRoleBean.object.nombre}" />
+                            </h:panelGrid>
+                            <h:outputLabel value="Descripción" />
+                            <h:panelGrid columns="1" >
+                                <p:inputText value="#{systemRoleBean.object.descripcion}" />
+                            </h:panelGrid>
+                        </h:panelGrid>
+                        <p:panel >
+                            <h:panelGrid columns="2" >
+                                <p:outputPanel id="grupos" >
+                                    <p:pickList itemLabel="#{group}" 
+                                                itemValue="#{group}" 
+                                                value="#{systemRoleBean.grupos}" 
+                                                var="group"
+                                                onTransfer="handleTransfer(e)">
+                                        <f:facet name="sourceCaption">Grupos Existentes</f:facet>
+                                        <f:facet name="targetCaption">Grupos del Rol</f:facet>
+                                    </p:pickList>
+                                    <p:commandButton  id="hiddenLink"
+                                                        value="Actualizar Permisos" 
+                                                        update=":rolForm:permisos" 
+                                                        actionListener="#{systemRoleBean.updateGrupos}"
+                                                        style="display:none" />
+                                    <script type="text/javascript">
+                                        function handleTransfer(e) {
+                                            item = e.item;
+                                            $('#hiddenLink').click();
+                                        }
+                                    </script>
+                                </p:outputPanel>
+                                <p:panel id="permisos" 
+                                         header="Permisos" >
+                                    <p:treeTable value="#{systemRoleBean.systemOptionNode}" 
+                                                    var="so" scrollHeight="180" scrollWidth="455" scrollable="true">
+                                        <p:column width="160" headerText="Opción">
+                                            <h:outputText value="#{so.name}" />
+                                        </p:column>
+                                        <p:column width="160" headerText="Heredado">
+                                            <h:outputText value="#{so.inherited}" />
+                                        </p:column>
+                                        <p:column width="54" headerText="Permitido">
+                                            <center>
+                                                <p:selectBooleanCheckbox rendered="#{so.option != null}" 
+                                                                            disabled="#{so.isReadOnly()}" 
+                                                                            value="#{so.value}">
+                                                    <p:ajax update="@(.ui-chkbox)" listener="#{so.valueChanged}" />
+                                                </p:selectBooleanCheckbox>
+                                            </center>
+                                        </p:column>
+                                    </p:treeTable>
+                                </p:panel>
+                            </h:panelGrid>
+                        </p:panel>
+                        <h:panelGrid columns="2" >
+                            <p:commandButton ajax="true" 
+                                             oncomplete="updateRoleTree()"
+                                             value="Grabar" 
+                                             actionListener="#{systemRoleBean.updateObject}" 
+                                             update=":growl, :rolData" 
+                                             disabled="#{!(systemRolesBean.canUpdate() || (systemRoleBean.object.id == null and systemRolesBean.canCreate()))}" />
+                            <p:commandButton ajax="true" 
+                                             oncomplete="updateRoleTree()"
+                                             value="Eliminar" 
+                                             actionListener="#{systemRoleBean.deleteObject}" 
+                                             update=":rolData, :growl" 
+                                             disabled="#{systemRoleBean.object == null || systemRoleBean.object.id == null || !systemRolesBean.canDelete()}" />
+                        </h:panelGrid>
+                    </h:form>
+                </p:panel>
+                <h:form >
+                    <p:remoteCommand name="updateRoleTree" 
+                                     actionListener="#{systemRolesBean.search}" 
+                                     update=":#{p:component('tree')}" />
+                </h:form>
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>

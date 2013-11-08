@@ -1,0 +1,67 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+    <body>
+
+        <ui:composition template="./../templates/baseTemplate.xhtml">
+
+            <ui:define name="left">
+                <p:panel header="Países" 
+                         id="busqPaises" >
+                    <ezcomp:busqueda onSelectUpdate=":paisData"
+                                     objectSelectListener="#{paisBean.selectObject}"
+                                     canDelete="true"
+                                     cleanObject="#{paisBean.cleanObject}"
+                                     objects="#{paisesBean.objects}"
+                                     searchKey="#{paisesBean.searchKey}"
+                                     searchLabel="Nombre"
+                                     searchObject="#{paisesBean.search}"
+                                     selectedNode="#{paisesBean.selectedNode}"
+                                     nodeExpandListener="#{paisesBean.expandNode}" 
+                                     canCreate="#{paisesBean.canCreate()}" 
+                                     newObject="#{paisBean.newObject}" 
+                                     onCreateUpdate=":paisData" 
+                                     showCreateDiag="false" />
+                </p:panel>
+            </ui:define>
+
+            <ui:define name="center">
+                <p:panel header="Países" 
+                            id="paisData" 
+                            visible="#{paisBean.object != null and paisesBean.canRead()}" >
+                    <h:form prependId="false" 
+                            id="paisForm" >
+                        <ui:include src="pais.xhtml" />
+                        <h:panelGrid columns="2" >
+                            <p:commandButton ajax="true" 
+                                                oncomplete="updatePaisTree()"
+                                                value="Grabar" 
+                                                actionListener="#{paisBean.updateObject}" 
+                                                update=":growl, :paisData" 
+                                                disabled="#{!(paisesBean.canUpdate() || (paisBean.object.id == null and paisesBean.canCreate()))}" />
+                            <p:commandButton ajax="true" 
+                                                oncomplete="updatePaisTree()"
+                                                value="Eliminar" 
+                                                actionListener="#{paisBean.deleteObject}" 
+                                                update=":paisData, :growl" 
+                                                disabled="#{paisBean.object == null || paisBean.object.id == null || !paisesBean.canDelete()}" />
+                        </h:panelGrid>
+                    </h:form>
+                </p:panel>
+                <h:form >
+                    <p:remoteCommand name="updatePaisTree" 
+                                        actionListener="#{paisesBean.search}" 
+                                        update=":#{p:component('tree')}" />
+                </h:form>
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>
